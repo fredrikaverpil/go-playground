@@ -1,0 +1,8 @@
+mode: set
+lgwt/01_hello_world/hello.go:13.42,14.16 1 1
+lgwt/01_hello_world/hello.go:14.16,16.3 1 1
+lgwt/01_hello_world/hello.go:18.2,18.18 1 1
+lgwt/01_hello_world/hello.go:19.15,20.35 1 1
+lgwt/01_hello_world/hello.go:21.14,22.34 1 1
+lgwt/01_hello_world/hello.go:23.10,24.35 1 1
+lgwt/01_hello_world/hello.go:28.13,30.2 1 0
