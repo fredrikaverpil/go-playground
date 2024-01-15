@@ -12,9 +12,8 @@ import (
 )
 
 const (
-	topicID   = "demo"
-	projectID = "your-gcp-project-id" // replace with your GCP project ID
-	template  = `<html><body>
+	topicID  = "demo"
+	template = `<html><body>
         <form action="/" method="post">
             <input type="text" name="message"/>
             <input type="submit" value="Send"/>
@@ -26,6 +25,12 @@ func main() {
 	ctx := context.Background()
 
 	logger := NewLogger()
+
+	projectID := os.Getenv("TF_VAR_project_id")
+	if projectID == "" {
+		logger.Error("TF_VAR_project_id environment variable is not set")
+		return
+	}
 
 	// Create Pub/Sub client
 	pubsubClient, err := pubsub.NewClient(ctx, projectID)

@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     environment:
       - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
+      - TF_VAR_project_id=${TF_VAR_project_id}
     depends_on:
       - pubsub-emulator
   pubsub-emulator:

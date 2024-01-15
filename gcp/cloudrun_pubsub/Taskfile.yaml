@@ -1,0 +1,24 @@
+# https://taskfile.dev
+---
+version: "3"
+
+tasks:
+  build:
+    desc: Build image
+    cmds:
+      - docker build -t gcr.io/${TF_VAR_project_id}/app:latest .
+    silent: true
+
+  push:
+    desc: Push image
+    cmds:
+      # - gcloud auth login
+      - gcloud auth configure-docker
+      - docker push gcr.io/${TF_VAR_project_id}/app
+    silent: true
+
+  delete:
+    desc: Delete image
+    cmds:
+      - gcloud container images delete gcr.io/${TF_VAR_project_id}/app:latest --force-delete-tags
+    silent: true
