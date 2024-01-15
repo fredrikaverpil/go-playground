@@ -54,3 +54,8 @@ To tear it all down:
 tf destroy
 task delete
 ```
+
+## Docs
+
+- https://hub.docker.com/r/google/cloud-sdk
+- https://cloud.google.com/go/docs/reference/cloud.google.com/go/pubsub/latest
