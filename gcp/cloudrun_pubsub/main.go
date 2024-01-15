@@ -14,6 +14,12 @@ import (
 const (
 	topicID   = "demo"
 	projectID = "your-gcp-project-id" // replace with your GCP project ID
+	template  = `<html><body>
+        <form action="/" method="post">
+            <input type="text" name="message"/>
+            <input type="submit" value="Send"/>
+        </form>
+    </body></html>`
 )
 
 func main() {
@@ -40,14 +46,10 @@ func main() {
 			r.ParseForm()
 			message := r.FormValue("message")
 			publishMessage(ctx, topic, message, logger)
+			fmt.Fprintln(w, template)
 		}
 		if r.Method == http.MethodGet {
-			fmt.Fprintln(w, `<html><body>
-        <form action="/" method="post">
-            <input type="text" name="message"/>
-            <input type="submit" value="Send"/>
-        </form>
-    </body></html>`)
+			fmt.Fprintln(w, template)
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
