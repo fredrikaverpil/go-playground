@@ -4,21 +4,21 @@ version: "3"
 
 tasks:
   build:
-    desc: Build image
+    desc: Build image for GCR
     cmds:
-      - docker build -t gcr.io/${TF_VAR_project_id}/app:latest .
+      - docker build --platform linux/amd64 -t gcr.io/${TF_VAR_project_id}/app:latest .
     silent: true
 
   push:
-    desc: Push image
+    desc: Push image for GCR
     cmds:
       # - gcloud auth login
       - gcloud auth configure-docker
-      - docker push gcr.io/${TF_VAR_project_id}/app
+      - docker push gcr.io/${TF_VAR_project_id}/app:latest
     silent: true
 
   delete:
-    desc: Delete image
+    desc: Delete image from GCR
     cmds:
       - gcloud container images delete gcr.io/${TF_VAR_project_id}/app:latest --force-delete-tags
     silent: true

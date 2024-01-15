@@ -18,21 +18,35 @@ resource "google_service_account" "my_service_account" {
   display_name = "Service account for My App"
 }
 
+resource "google_project_iam_member" "pubsub_editor" {
+  // Allow creating pub/sub topics and subscriptions
+  project = var.project_id
+  role    = "roles/pubsub.editor"
+  member  = "serviceAccount:${google_service_account.my_service_account.email}"
+}
+
+# resource "google_project_iam_member" "service_usage_admin" {
+#   // Allow listing resources, so that the pub/sub API can be enabled/disabled
+#   project = var.project_id
+#   role    = "roles/serviceusage.serviceUsageAdmin"
+#   member  = "serviceAccount:${google_service_account.my_service_account.email}"
+# }
+
 resource "google_project_service" "cloud_run_api" {
   service            = "run.googleapis.com"
   disable_on_destroy = true
 }
 
-resource "google_project_service" "pubsub_api" {
-  service            = "pubsub.googleapis.com"
-  disable_on_destroy = true
-}
+# resource "google_project_service" "pubsub_api" {
+#   service            = "pubsub.googleapis.com"
+#   disable_on_destroy = true
+# }
 
 resource "google_cloud_run_service" "default" {
   name     = "my-app-service"
   location = "us-central1"
 
-  depends_on = [google_project_service.cloud_run_api, google_project_service.pubsub_api]
+  depends_on = [google_project_service.cloud_run_api]
 
   template {
     spec {
@@ -60,12 +74,7 @@ resource "google_cloud_run_service_iam_member" "invoker" {
   service  = google_cloud_run_service.default.name
 
   role   = "roles/run.invoker"
-  member = "allUsers"
+  member = "allUsers" # FIX: restrict to specific users
 }
 
-resource "google_project_iam_member" "pubsub_editor" {
-  project = var.project_id
-  role    = "roles/pubsub.editor"
-  member  = "serviceAccount:${google_service_account.my_service_account.email}"
-}
 

@@ -40,7 +40,7 @@ Create infra:
 
 ```bash
 gcloud auth login
-gcloud auth application-default login
+gcloud auth application-default login  # FIX: this should not be needed. There are missing permission in main.tf.
 
 tf init
 tf apply
