@@ -11,3 +11,5 @@
 
 - Original issue: https://github.com/nvim-neotest/neotest-go/issues/80
 - See [marshaloutput_test.go](marshaloutput_test.go) for example code, see the `// FIXME` comments.
+
+<img width="2560" alt="Screenshot" src="https://github.com/fredrikaverpil/go-playground/assets/994357/a1c9d033-0b10-4399-a62a-53a2681ae6f0">
