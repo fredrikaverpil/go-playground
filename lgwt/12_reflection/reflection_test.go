@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+// NOTE: more reading: https://blog.golang.org/laws-of-reflection
+
 type Person struct {
 	Name    string
 	Profile Profile
