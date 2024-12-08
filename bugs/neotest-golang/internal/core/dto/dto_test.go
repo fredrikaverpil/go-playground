@@ -3,9 +3,9 @@ package dto_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"gotest.tools/v3/assert"
 )
 
 func TestSomething(t *testing.T) {
-	require.Equal(t, 1, 1)
+	assert.Equal(t, 1, 1)
 }
