@@ -1,6 +1,4 @@
-//go:build integration
-
-package dto
+package dto_test
 
 import (
 	"testing"
