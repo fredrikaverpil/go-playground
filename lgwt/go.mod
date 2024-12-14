@@ -1,3 +1,3 @@
-module lgwt
+module github.com/fredrikaverpil/go-playground/lgwt
 
-go 1.21.5
+go 1.23.4
