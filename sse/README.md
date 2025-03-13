@@ -14,7 +14,7 @@ for more details.
 This is the simplest implementation.
 
 ```sh
-go run main.go ssehandlerv1.go
+go run ./cmd/serverv1
 ```
 
 Now open `indexv1.html`. You should see the server sending the events to the
@@ -25,7 +25,7 @@ browser.
 This has some nicer events data, leveraging JSON.
 
 ```sh
-go run main.go ssehandlerv2.go
+go run ./cmd/serverv2
 ```
 
 Now open `indexv2.html`. You should see the server sending the events to the
