@@ -1,4 +1,4 @@
-# Learning about test2json
+# Learning about [test2json](https://pkg.go.dev/cmd/test2json)
 
 ## Conclusion
 
