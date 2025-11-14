@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:claude.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:go.dev)",
+      "WebFetch(domain:pkg.go.dev)",
+      "Bash(command:go doc:*)",
+      "Bash(command:go version:*)",
+      "Bash(command:go run:*)",
+      "Bash(command:go build:*)",
+      "Bash(command:go test:*)",
+      "Bash(command:go mod:*)",
+      "Bash(command:go fmt:*)",
+      "Bash(command:go vet:*)",
+      "Bash(command:go get:*)",
+      "Bash(command:go install:*)",
+      "Bash(command:go clean:*)",
+      "Bash(command:go list:*)",
+      "Bash(command:go env:*)",
+      "Bash(command:go work:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
