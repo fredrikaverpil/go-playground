@@ -5,6 +5,10 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:go.dev)",
       "WebFetch(domain:pkg.go.dev)",
+      "WebFetch(domain:grpc.io)",
+      "WebFetch(domain:buf.build)",
+      "WebFetch(domain:protobuf.dev)",
+      "WebFetch(domain:cloud.google.com)",
       "Bash(command:go doc:*)",
       "Bash(command:go version:*)",
       "Bash(command:go run:*)",
@@ -18,7 +22,10 @@
       "Bash(command:go clean:*)",
       "Bash(command:go list:*)",
       "Bash(command:go env:*)",
-      "Bash(command:go work:*)"
+      "Bash(command:go work:*)",
+      "Bash(command:buf:*)",
+      "Bash(command:protoc:*)",
+      "Bash(command:grpcurl:*)"
     ],
     "deny": [],
     "ask": []
