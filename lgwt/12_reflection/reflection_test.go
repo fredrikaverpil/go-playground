@@ -22,6 +22,7 @@ func TestWalk(t *testing.T) {
 		Name          string
 		Input         interface{}
 		ExpectedCalls []string
+		Skip          bool
 	}{
 		{
 			Name: "struct with one string field",
@@ -79,7 +80,10 @@ func TestWalk(t *testing.T) {
 			ExpectedCalls: []string{"London", "Reykjavík"},
 		},
 		{
+			// NOTE: flaky due to non-deterministic map iteration order.
+			// Properly tested in "with unordered maps" subtest below.
 			Name: "maps",
+			Skip: true,
 			Input: map[string]string{
 				"Cow":   "Moo",
 				"Sheep": "Baa",
@@ -90,6 +94,9 @@ func TestWalk(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
+			if tc.Skip {
+				t.Skip("flaky: non-deterministic map iteration order")
+			}
 			var got []string
 			walk(tc.Input, func(input string) {
 				got = append(got, input)
