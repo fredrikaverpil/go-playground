@@ -38,7 +38,7 @@ func newTestClient(t *testing.T) taskv1.TaskServiceClient {
 	if err != nil {
 		t.Fatalf("dial: %v", err)
 	}
-	t.Cleanup(func() { conn.Close() })
+	t.Cleanup(func() { _ = conn.Close() })
 
 	return taskv1.NewTaskServiceClient(conn)
 }

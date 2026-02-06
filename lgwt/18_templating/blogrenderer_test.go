@@ -91,6 +91,6 @@ func BenchmarkRender(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		postRenderer.Render(io.Discard, aPost)
+		_ = postRenderer.Render(io.Discard, aPost)
 	}
 }

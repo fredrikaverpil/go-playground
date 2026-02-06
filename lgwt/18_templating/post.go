@@ -13,5 +13,5 @@ type Post struct {
 // SanitisedTitle returns the title of the post with spaces replaced by dashes for pleasant URLs.
 // Without this, the post would e.g. contain %20 for spaces.
 func (p Post) SanitisedTitle() string {
-	return strings.ToLower(strings.Replace(p.Title, " ", "-", -1))
+	return strings.ToLower(strings.ReplaceAll(p.Title, " ", "-"))
 }

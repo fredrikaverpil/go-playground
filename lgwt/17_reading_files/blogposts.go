@@ -26,7 +26,7 @@ func getPost(fileSystem fs.FS, f fs.DirEntry) (Post, error) {
 	if err != nil {
 		return Post{}, err
 	}
-	defer postFile.Close()
+	defer func() { _ = postFile.Close() }()
 
 	return newPost(postFile)
 }

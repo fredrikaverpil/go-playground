@@ -9,10 +9,7 @@ import (
 
 func mockWebsiteChecker(url string) bool {
 	fmt.Println("Checking website", url)
-	if url == "waat://furhurterwe.geds" {
-		return false
-	}
-	return true
+	return url != "waat://furhurterwe.geds"
 }
 
 func TestCheckWebsites(t *testing.T) {

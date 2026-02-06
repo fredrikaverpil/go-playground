@@ -8,15 +8,20 @@ import (
 	"os"
 )
 
-func Greet(writer io.Writer, name string) {
-	fmt.Fprintf(writer, "Hello, %s", name)
+func Greet(writer io.Writer, name string) error {
+	_, err := fmt.Fprintf(writer, "Hello, %s", name)
+	return err
 }
 
 func MyGreeterHandler(w http.ResponseWriter, r *http.Request) {
-	Greet(w, "world")
+	if err := Greet(w, "world"); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func main() {
-	Greet(os.Stdout, "Elodie")
+	if err := Greet(os.Stdout, "Elodie"); err != nil {
+		log.Fatal(err)
+	}
 	log.Fatal(http.ListenAndServe(":5001", http.HandlerFunc(MyGreeterHandler)))
 }

@@ -41,13 +41,6 @@ func TestAdd(t *testing.T) {
 	})
 }
 
-func TestNilMap(t *testing.T) {
-	dictionary := Dictionary{}
-	if dictionary == nil {
-		t.Fatal("dictionary should not be nil")
-	}
-}
-
 func TestUpdate(t *testing.T) {
 	t.Run("existing word", func(t *testing.T) {
 		word := "test"

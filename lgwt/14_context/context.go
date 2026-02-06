@@ -17,6 +17,6 @@ func Server(store Store) http.HandlerFunc {
 			// return error
 			return
 		}
-		fmt.Fprint(w, data) // write response
+		_, _ = fmt.Fprint(w, data) // write response
 	}
 }

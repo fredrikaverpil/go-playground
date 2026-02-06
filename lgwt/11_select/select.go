@@ -19,7 +19,10 @@ func RacerV1(a, b string) (winner string) {
 
 func measureResponseTime(url string) time.Duration {
 	start := time.Now()
-	http.Get(url)
+	resp, _ := http.Get(url)
+	if resp != nil {
+		_ = resp.Body.Close()
+	}
 	return time.Since(start)
 }
 
@@ -36,7 +39,10 @@ func RacerV2(a, b string) (winner string, err error) {
 func ping(url string) chan struct{} {
 	ch := make(chan struct{})
 	go func() {
-		http.Get(url)
+		resp, _ := http.Get(url)
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
 		close(ch) // send signal into channel
 	}()
 	return ch
