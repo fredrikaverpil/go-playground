@@ -113,11 +113,71 @@ pagination with the limit+1 pattern for `next_page_token`.
 
 ### N-gram size benchmark
 
-Compares `ngram_size_min=>1` vs `ngram_size_min=>2` in `TOKENIZE_SUBSTRING` to
-measure the impact on `SEARCH_NGRAMS` + `SCORE_NGRAMS` query performance. Uses
-two identical tables with different tokenization configs and the same 50-row
-dataset. Only benchmarks the native `spanner.Client` since the comparison is
-between tokenization parameters, not drivers.
+Compares `ngram_size_min=>1` vs `ngram_size_min=>2` vs `ngram_size_min=>3` in
+`TOKENIZE_SUBSTRING` to measure the impact on `SEARCH_NGRAMS` + `SCORE_NGRAMS`
+query performance. Uses three identical tables with different tokenization
+configs and the same 50-row dataset. Only benchmarks the native `spanner.Client`
+since the comparison is between tokenization parameters, not drivers.
+
+`BenchmarkNgram` runs configs in ascending order (1, 2, 3) and
+`BenchmarkNgramReversed` runs them in descending order (3, 2, 1). Running all
+configs in a single process produces an ordering bias (see below), so for a fair
+comparison run each config in isolation:
+
+```bash
+go test -bench='^BenchmarkNgram$/ngram_min_1' -benchmem -count=3 -run='^$' ./...
+go test -bench='^BenchmarkNgram$/ngram_min_2' -benchmem -count=3 -run='^$' ./...
+go test -bench='^BenchmarkNgram$/ngram_min_3' -benchmem -count=3 -run='^$' ./...
+```
+
+**Emulator caveat:** The Spanner emulator (Java-based) degrades under sustained
+load — ns/op increases monotonically across consecutive benchmark iterations
+within a single process. When all configs run together, whichever sub-benchmark
+runs first always appears faster. Running each config in its own process (fresh
+emulator) eliminates this bias.
+
+#### Isolated results (fair comparison)
+
+Each config in its own process with a fresh emulator. Results on Apple M2
+(emulator, `count=3`):
+
+| Config | Run 1 ns/op | Run 2 ns/op | Run 3 ns/op | B/op | allocs/op |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `ngram_min_1` | 3,029,308 | 3,848,926 | 4,591,408 | ~21,460 | 328 |
+| `ngram_min_2` | 2,960,212 | 3,869,940 | 4,803,368 | ~21,460 | 328 |
+| `ngram_min_3` | 2,921,224 | 3,831,745 | 4,683,471 | ~21,460 | 328 |
+
+**No measurable difference** between `ngram_size_min=1`, `=2`, and `=3` on the
+emulator. All three configs produce the same times within noise (~3.0ms →
+~4.7ms) and identical memory allocations.
+
+Note: within-process degradation (3ms → 4.7ms across `count=3`) still exists
+but affects each config equally. A real-world difference, if any, would need to
+be validated on Cloud Spanner with a larger dataset.
+
+#### Combined results (showing ordering bias)
+
+All configs in one process. Included to demonstrate why isolated runs are
+necessary:
+
+`BenchmarkNgram` (ascending: 1 → 2 → 3):
+
+| Config | Run 1 ns/op | Run 3 ns/op |
+| --- | ---: | ---: |
+| `ngram_min_1` (runs first) | 3,042,706 | 4,671,490 |
+| `ngram_min_2` (runs second) | 5,211,144 | 6,074,381 |
+| `ngram_min_3` (runs third) | 6,525,386 | 7,143,420 |
+
+`BenchmarkNgramReversed` (descending: 3 → 2 → 1):
+
+| Config | Run 1 ns/op | Run 3 ns/op |
+| --- | ---: | ---: |
+| `ngram_min_3` (runs first) | 7,635,329 | 8,202,486 |
+| `ngram_min_2` (runs second) | 8,513,336 | 8,934,733 |
+| `ngram_min_1` (runs third) | 9,020,893 | 9,531,930 |
+
+Whichever config runs first always gets the fastest times. `ngram_min_1` went
+from 3.0ms (first) to 9.0ms (last) by simply changing the execution order.
 
 - [Find approximate matches with fuzzy search](https://docs.cloud.google.com/spanner/docs/full-text-search/fuzzy-search)
 - [Tokenization](https://docs.cloud.google.com/spanner/docs/full-text-search/tokenization)
