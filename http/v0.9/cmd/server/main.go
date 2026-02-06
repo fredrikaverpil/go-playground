@@ -10,7 +10,9 @@ func main() {
 	s := Server{
 		Addr: addr,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Hello World!"))
+			if _, err := w.Write([]byte("Hello World!")); err != nil {
+				log.Printf("Failed to write response: %v", err)
+			}
 		}),
 	}
 	log.Printf("Listening on %s", addr)

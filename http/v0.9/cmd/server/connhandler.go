@@ -10,7 +10,11 @@ import (
 )
 
 func (s *Server) handleConnection(conn net.Conn) {
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("Failed to close connection: %v", err)
+		}
+	}()
 
 	reader := bufio.NewReader(conn)
 	line, _, err := reader.ReadLine() // GET /path/to/resource

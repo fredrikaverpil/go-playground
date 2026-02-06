@@ -37,7 +37,11 @@ func main() {
 	if err != nil {
 		logger.Error("Failed to create Pub/Sub client", "error", err)
 	}
-	defer pubsubClient.Close()
+	defer func() {
+		if err := pubsubClient.Close(); err != nil {
+			logger.Error("Failed to close Pub/Sub client", "error", err)
+		}
+	}()
 
 	// Ensure the topic exists
 	topic := ensureTopicExists(ctx, pubsubClient, topicID, logger)
@@ -48,13 +52,20 @@ func main() {
 	// Set up web server
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			r.ParseForm()
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "failed to parse form", http.StatusBadRequest)
+				return
+			}
 			message := r.FormValue("message")
 			publishMessage(ctx, topic, message, logger)
-			fmt.Fprintln(w, template)
+			if _, err := fmt.Fprintln(w, template); err != nil {
+				logger.Error("Failed to write response", "error", err)
+			}
 		}
 		if r.Method == http.MethodGet {
-			fmt.Fprintln(w, template)
+			if _, err := fmt.Fprintln(w, template); err != nil {
+				logger.Error("Failed to write response", "error", err)
+			}
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))

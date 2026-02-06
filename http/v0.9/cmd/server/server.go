@@ -19,7 +19,11 @@ func (s *Server) ServeAndListen() error {
 	if err != nil {
 		return err
 	}
-	defer l.Close()
+	defer func() {
+		if err := l.Close(); err != nil {
+			log.Printf("Failed to close listener: %v", err)
+		}
+	}()
 
 	for {
 		conn, err := l.Accept()

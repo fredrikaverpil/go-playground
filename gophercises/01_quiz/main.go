@@ -24,7 +24,11 @@ func main() {
 		fmt.Printf("Failed to open the CSV file: %s\n", *csvFile)
 		os.Exit(1)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("Failed to close CSV file: %v", err)
+		}
+	}()
 
 	reader := csv.NewReader(file)
 
@@ -44,7 +48,9 @@ func main() {
 
 	for i, p := range problems {
 		fmt.Printf("%s = ", p.question)
-		fmt.Scanln(&p.answer)
+		if _, err := fmt.Scanln(&p.answer); err != nil {
+			log.Printf("Failed to read answer: %v", err)
+		}
 		problems[i].answer = p.answer
 	}
 
