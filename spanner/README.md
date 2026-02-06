@@ -92,8 +92,8 @@ Google recommends `ngram_size_min=>2, ngram_size_max=>3` as a starting point for
 fuzzy search / typo matching. Key guidance:
 
 - **Avoid `ngram_size_min=1`** — single-character n-grams match too many
-  documents and bloat the index. From the docs: "We don't recommend one character
-  n-grams because they could match a very large number of documents."
+  documents and bloat the index. From the docs: "We don't recommend one
+  character n-grams because they could match a very large number of documents."
 - **Substring indexes use 10-30x more storage** than full-text indexes over the
   same data. The overhead grows as the gap between `ngram_size_min` and
   `ngram_size_max` widens.
@@ -149,8 +149,8 @@ The n-gram size benchmark below focuses on `SEARCH_NGRAMS` for this reason.
 Note: `relative_search_types` in `TOKENIZE_SUBSTRING` generates anchor tokens
 for `SEARCH_SUBSTRING` positional matching (word prefix, suffix, phrase
 adjacency). `SEARCH_NGRAMS` ignores these anchors, so enabling
-`relative_search_types` when only using `SEARCH_NGRAMS` bloats the index
-without benefit.
+`relative_search_types` when only using `SEARCH_NGRAMS` bloats the index without
+benefit.
 
 #### Full-text search vs fuzzy search
 
@@ -232,9 +232,9 @@ Each config in its own process with a fresh emulator. Results on Apple M2
 emulator. All three configs produce the same times within noise (~3.0ms →
 ~4.7ms) and identical memory allocations.
 
-Note: within-process degradation (3ms → 4.7ms across `count=3`) still exists
-but affects each config equally. A real-world difference, if any, would need to
-be validated on Cloud Spanner with a larger dataset.
+Note: within-process degradation (3ms → 4.7ms across `count=3`) still exists but
+affects each config equally. A real-world difference, if any, would need to be
+validated on Cloud Spanner with a larger dataset.
 
 #### Combined results (showing ordering bias)
 
