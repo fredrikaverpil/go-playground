@@ -19,6 +19,19 @@ go test -bench=. -benchmem -count=1 -run='^$' ./...
 Each benchmark compares the native `spanner.Client` against `database/sql` (via
 [go-sql-spanner](https://github.com/googleapis/go-sql-spanner)).
 
+Results on Apple M2 (emulator, `count=1`):
+
+| Benchmark | Query | `spanner` ns/op | `database/sql` ns/op | Ratio |
+| --- | --- | ---: | ---: | ---: |
+| Singers | `SELECT` with JSON column | 2,576,532 | 3,994,969 | 1.55x |
+| FullTextSearch | `SEARCH()` on full-text tokens | 2,645,714 | 3,981,792 | 1.51x |
+| FuzzySearch | `SEARCH_NGRAMS` + `SCORE_NGRAMS` | 2,676,155 | 4,134,266 | 1.54x |
+| PhoneticSearch | `SOUNDEX`-based equality filter | 2,576,991 | 3,971,287 | 1.54x |
+| ListFilter | Parameterized `WHERE` clause | 2,529,799 | 3,891,600 | 1.54x |
+
+The native client is consistently ~1.5x faster than `database/sql`, which adds
+overhead from the generic `sql.DB` abstraction layer.
+
 ## How it works
 
 `main_test.go` contains `TestMain`, which:
