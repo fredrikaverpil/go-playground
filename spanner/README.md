@@ -33,13 +33,13 @@ Each test uses shared helpers from `testhelpers_test.go` to apply schema (DDL)
 and seed data (DML) from embedded SQL files before running queries. Schema and
 seed files are named after the experiment (1:1 mapping):
 
-| Experiment | Native (`_spanner`) | database/sql (`_sql`) | Benchmark (`_bench`) | Schema | Seed |
-|---|---|---|---|---|---|
-| Singers | `singers_spanner_test.go` | `singers_sql_test.go` | `singers_bench_test.go` | `schema/singers.sql` | `seed/singers.sql` |
+| Experiment       | Native (`_spanner`)               | database/sql (`_sql`)         | Benchmark (`_bench`)            | Schema                       | Seed                       |
+| ---------------- | --------------------------------- | ----------------------------- | ------------------------------- | ---------------------------- | -------------------------- |
+| Singers          | `singers_spanner_test.go`         | `singers_sql_test.go`         | `singers_bench_test.go`         | `schema/singers.sql`         | `seed/singers.sql`         |
 | Full-text search | `fulltext_search_spanner_test.go` | `fulltext_search_sql_test.go` | `fulltext_search_bench_test.go` | `schema/fulltext_search.sql` | `seed/fulltext_search.sql` |
-| Fuzzy search | `fuzzy_search_spanner_test.go` | `fuzzy_search_sql_test.go` | `fuzzy_search_bench_test.go` | `schema/fuzzy_search.sql` | `seed/fuzzy_search.sql` |
-| Phonetic search | `phonetic_search_spanner_test.go` | `phonetic_search_sql_test.go` | `phonetic_search_bench_test.go` | `schema/phonetic_search.sql` | `seed/phonetic_search.sql` |
-| List filter | `list_filter_spanner_test.go` | `list_filter_sql_test.go` | `list_filter_bench_test.go` | `schema/list_filter.sql` | `seed/list_filter.sql` |
+| Fuzzy search     | `fuzzy_search_spanner_test.go`    | `fuzzy_search_sql_test.go`    | `fuzzy_search_bench_test.go`    | `schema/fuzzy_search.sql`    | `seed/fuzzy_search.sql`    |
+| Phonetic search  | `phonetic_search_spanner_test.go` | `phonetic_search_sql_test.go` | `phonetic_search_bench_test.go` | `schema/phonetic_search.sql` | `seed/phonetic_search.sql` |
+| List filter      | `list_filter_spanner_test.go`     | `list_filter_sql_test.go`     | `list_filter_bench_test.go`     | `schema/list_filter.sql`     | `seed/list_filter.sql`     |
 
 Experiments with shared types also have an unsuffixed `_test.go` file (e.g.
 `singers_test.go`, `list_filter_test.go`) containing only type definitions and

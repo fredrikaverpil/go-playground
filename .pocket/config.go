@@ -4,6 +4,7 @@ import (
 	"github.com/fredrikaverpil/pocket/pk"
 	"github.com/fredrikaverpil/pocket/tasks/github"
 	"github.com/fredrikaverpil/pocket/tasks/golang"
+	"github.com/fredrikaverpil/pocket/tasks/markdown"
 )
 
 // Config is the Pocket configuration for this project.
@@ -14,9 +15,12 @@ var Config = &pk.Config{
 			golang.Tasks(),
 			pk.WithDetect(golang.Detect()),
 		),
+		markdown.Tasks(),
 		pk.WithOptions(
 			github.Tasks(),
 			pk.WithFlag(github.Workflows, "skip-pocket", true),
+			pk.WithFlag(github.Workflows, "skip-release", true),
+			pk.WithFlag(github.Workflows, "skip-stale", true),
 			pk.WithFlag(github.Workflows, "include-pocket-matrix", true),
 			pk.WithContextValue(github.MatrixConfigKey{}, github.MatrixConfig{
 				DefaultPlatforms: []string{"ubuntu-latest"},
