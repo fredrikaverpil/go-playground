@@ -6,6 +6,7 @@ import (
 	"embed"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -15,6 +16,13 @@ import (
 	"google.golang.org/api/option"
 )
 
+var (
+	// schemaOnce ensures each schema file is applied exactly once across all tests.
+	schemaOnce sync.Map // key: file name → value: *sync.Once
+	// seedOnce ensures each seed file is applied exactly once across all tests.
+	seedOnce sync.Map // key: file name → value: *sync.Once
+)
+
 //go:embed schema/*.sql
 var schemaFS embed.FS
 
@@ -22,55 +30,62 @@ var schemaFS embed.FS
 var seedFS embed.FS
 
 // applySchema reads DDL files from the embedded schema/ FS and applies them via UpdateDatabaseDdl.
+// Each file is applied at most once per test run, so multiple tests sharing the same schema are safe.
 func applySchema(tb testing.TB, ctx context.Context, files ...string) {
 	tb.Helper()
-	adminClient, err := database.NewDatabaseAdminClient(ctx, option.WithoutAuthentication())
-	if err != nil {
-		tb.Fatalf("create admin client: %v", err)
-	}
-	tb.Cleanup(func() { _ = adminClient.Close() })
-
-	var statements []string
 	for _, file := range files {
-		data, err := schemaFS.ReadFile("schema/" + file)
-		if err != nil {
-			tb.Fatalf("read schema file %s: %v", file, err)
-		}
-		statements = append(statements, splitStatements(string(data))...)
-	}
+		once, _ := schemaOnce.LoadOrStore(file, &sync.Once{})
+		once.(*sync.Once).Do(func() {
+			adminClient, err := database.NewDatabaseAdminClient(ctx, option.WithoutAuthentication())
+			if err != nil {
+				tb.Fatalf("create admin client: %v", err)
+			}
+			defer func() { _ = adminClient.Close() }()
 
-	op, err := adminClient.UpdateDatabaseDdl(ctx, &databasepb.UpdateDatabaseDdlRequest{
-		Database:   databaseURI,
-		Statements: statements,
-	})
-	if err != nil {
-		tb.Fatalf("update DDL: %v", err)
-	}
-	if err := op.Wait(ctx); err != nil {
-		tb.Fatalf("wait for DDL: %v", err)
+			data, err := schemaFS.ReadFile("schema/" + file)
+			if err != nil {
+				tb.Fatalf("read schema file %s: %v", file, err)
+			}
+			statements := splitStatements(string(data))
+
+			op, err := adminClient.UpdateDatabaseDdl(ctx, &databasepb.UpdateDatabaseDdlRequest{
+				Database:   databaseURI,
+				Statements: statements,
+			})
+			if err != nil {
+				tb.Fatalf("update DDL: %v", err)
+			}
+			if err := op.Wait(ctx); err != nil {
+				tb.Fatalf("wait for DDL: %v", err)
+			}
+		})
 	}
 }
 
 // applySeed reads DML files from the embedded seed/ FS and applies them via ReadWriteTransaction.
+// Each file is applied at most once per test run, so multiple tests sharing the same seed are safe.
 func applySeed(tb testing.TB, ctx context.Context, client *spanner.Client, files ...string) {
 	tb.Helper()
-	var statements []spanner.Statement
 	for _, file := range files {
-		data, err := seedFS.ReadFile("seed/" + file)
-		if err != nil {
-			tb.Fatalf("read seed file %s: %v", file, err)
-		}
-		for _, s := range splitStatements(string(data)) {
-			statements = append(statements, spanner.NewStatement(s))
-		}
-	}
+		once, _ := seedOnce.LoadOrStore(file, &sync.Once{})
+		once.(*sync.Once).Do(func() {
+			data, err := seedFS.ReadFile("seed/" + file)
+			if err != nil {
+				tb.Fatalf("read seed file %s: %v", file, err)
+			}
+			var statements []spanner.Statement
+			for _, s := range splitStatements(string(data)) {
+				statements = append(statements, spanner.NewStatement(s))
+			}
 
-	_, err := client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-		_, err := txn.BatchUpdate(ctx, statements)
-		return err
-	})
-	if err != nil {
-		tb.Fatalf("apply seed data: %v", err)
+			_, err = client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
+				_, err := txn.BatchUpdate(ctx, statements)
+				return err
+			})
+			if err != nil {
+				tb.Fatalf("apply seed data: %v", err)
+			}
+		})
 	}
 }
 

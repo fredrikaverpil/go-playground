@@ -33,7 +33,7 @@ func filePrinter() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	readerToStdout(file, 64)
 
@@ -53,7 +53,7 @@ func connectionPrinter() error {
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// fire off a request
 	fmt.Fprint(conn, "GET / HTTP/1.0\r\n\r\n")

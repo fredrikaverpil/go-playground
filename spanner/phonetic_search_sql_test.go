@@ -24,7 +24,7 @@ func TestPhoneticSearchSQL(t *testing.T) {
 		if err != nil {
 			t.Fatalf("query: %v", err)
 		}
-		defer rows.Close()
+		defer func() { _ = rows.Close() }()
 		type result struct {
 			FirstName string
 			LastName  string
@@ -60,7 +60,7 @@ func TestPhoneticSearchSQL(t *testing.T) {
 		if err != nil {
 			t.Fatalf("query: %v", err)
 		}
-		defer rows.Close()
+		defer func() { _ = rows.Close() }()
 		var names []string
 		for rows.Next() {
 			var firstName, lastName, soundex string
@@ -86,7 +86,7 @@ func TestPhoneticSearchSQL(t *testing.T) {
 		if err != nil {
 			t.Fatalf("query: %v", err)
 		}
-		defer rows.Close()
+		defer func() { _ = rows.Close() }()
 		var names []string
 		for rows.Next() {
 			var firstName, lastName string

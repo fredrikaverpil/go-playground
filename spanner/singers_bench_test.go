@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"testing"
 
@@ -59,16 +58,17 @@ func BenchmarkSingers(b *testing.B) {
 			for rows.Next() {
 				var singerID int64
 				var firstName, lastName string
-				var rawJSON sql.NullString
-				if err := rows.Scan(&singerID, &firstName, &lastName, &rawJSON); err != nil {
+				var spannerMetadata spanner.NullJSON
+				if err := rows.Scan(&singerID, &firstName, &lastName, &spannerMetadata); err != nil {
 					b.Fatalf("scan columns: %v", err)
 				}
 				var metadata Metadata
-				if rawJSON.Valid {
-					_ = json.Unmarshal([]byte(rawJSON.String), &metadata)
+				if spannerMetadata.Valid {
+					jsonBytes, _ := json.Marshal(spannerMetadata.Value)
+					_ = json.Unmarshal(jsonBytes, &metadata)
 				}
 			}
-			rows.Close()
+			_ = rows.Close()
 			if err := rows.Err(); err != nil {
 				b.Fatalf("rows iteration: %v", err)
 			}

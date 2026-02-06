@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"testing"
 
+	"cloud.google.com/go/spanner"
 	"gotest.tools/v3/assert"
 )
 
@@ -33,17 +33,22 @@ func TestSingersSQL(t *testing.T) {
 	if err != nil {
 		t.Fatalf("query: %v", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	for rows.Next() {
 		var singerID int64
 		var firstName, lastName string
-		var rawJSON sql.NullString
-		if err := rows.Scan(&singerID, &firstName, &lastName, &rawJSON); err != nil {
+		// go-sql-spanner returns spanner.NullJSON for JSON columns.
+		var spannerMetadata spanner.NullJSON
+		if err := rows.Scan(&singerID, &firstName, &lastName, &spannerMetadata); err != nil {
 			t.Fatalf("scan columns: %v", err)
 		}
 		var metadata Metadata
-		if rawJSON.Valid {
-			if err := json.Unmarshal([]byte(rawJSON.String), &metadata); err != nil {
+		if spannerMetadata.Valid {
+			jsonBytes, err := json.Marshal(spannerMetadata.Value)
+			if err != nil {
+				t.Fatalf("marshal JSON value: %v", err)
+			}
+			if err := json.Unmarshal(jsonBytes, &metadata); err != nil {
 				t.Fatalf("unmarshal JSON: %v", err)
 			}
 		}

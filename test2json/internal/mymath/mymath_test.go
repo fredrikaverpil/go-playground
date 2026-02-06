@@ -23,8 +23,9 @@ func TestSubtract(t *testing.T) {
 			t.Error("2 - 5 should be -3")
 		}
 	})
-	// A deliberately failing sub-test
+	// A deliberately failing sub-test for test2json demonstration.
+	// Run explicitly with: go test -run TestSubtract/FailingSubTest
 	t.Run("FailingSubTest", func(t *testing.T) {
-		t.Error("This sub-test is designed to fail")
+		t.Skip("Skipped by default; this sub-test is designed to fail")
 	})
 }

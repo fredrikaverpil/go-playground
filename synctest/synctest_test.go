@@ -112,13 +112,15 @@ func TestContextAfterFunc(t *testing.T) {
 func TestPipeCopy(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		reader, writer := io.Pipe()
-		defer writer.Close()
+		defer func() { _ = writer.Close() }()
 
 		var buf bytes.Buffer
-		go io.Copy(&buf, reader)
+		go func() { _, _ = io.Copy(&buf, reader) }()
 
 		want := "hello, synctest"
-		writer.Write([]byte(want))
+		if _, err := writer.Write([]byte(want)); err != nil {
+			t.Fatal(err)
+		}
 		synctest.Wait()
 
 		if got := buf.String(); got != want {

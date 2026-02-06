@@ -48,7 +48,9 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 			); err != nil {
 				log.Printf("error writing memory info: %s\n", err)
 			}
-			rc.Flush() // send the data
+			if err := rc.Flush(); err != nil {
+				log.Printf("error flushing: %s\n", err)
+			}
 
 		case <-cpuT.C:
 			c, err := cpu.Times(false)
@@ -64,7 +66,9 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 			); err != nil {
 				log.Printf("error writing cpu info: %s\n", err)
 			}
-			rc.Flush() // send the data
+			if err := rc.Flush(); err != nil {
+				log.Printf("error flushing: %s\n", err)
+			}
 		}
 	}
 }

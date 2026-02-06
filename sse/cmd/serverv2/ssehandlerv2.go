@@ -26,14 +26,18 @@ type CPUInfo struct {
 }
 
 func sendSSE(w http.ResponseWriter, eventName string, data any) error {
-	fmt.Fprintf(w, "event: %s\n", eventName)
+	if _, err := fmt.Fprintf(w, "event: %s\n", eventName); err != nil {
+		return err
+	}
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	if _, err := fmt.Fprintf(w, "data: %s\n\n", jsonData); err != nil {
+		return err
+	}
 
 	rc := http.NewResponseController(w)
 	return rc.Flush()
