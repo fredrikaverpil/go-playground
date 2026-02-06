@@ -30,6 +30,7 @@ seed files are named after the test that uses them (1:1 mapping):
 | `fulltext_search_test.go` | `schema/fulltext_search.sql` | `seed/fulltext_search.sql` |
 | `fuzzy_search_test.go` | `schema/fuzzy_search.sql` | `seed/fuzzy_search.sql` |
 | `phonetic_search_test.go` | `schema/phonetic_search.sql` | `seed/phonetic_search.sql` |
+| `list_filter_test.go` | `schema/list_filter.sql` | `seed/list_filter.sql` |
 
 ## Experiments
 
@@ -70,3 +71,15 @@ index.
 
 - [Find approximate matches with fuzzy search](https://docs.cloud.google.com/spanner/docs/full-text-search/fuzzy-search)
 - [String functions in GoogleSQL (`SOUNDEX`)](https://docs.cloud.google.com/spanner/docs/reference/standard-sql/string_functions)
+
+### AIP-132 List with AIP-160 filtering
+
+Parses [AIP-160](https://google.aip.dev/160) filter strings and transpiles them
+to Spanner SQL `WHERE` clauses using
+[`go.einride.tech/aip`](https://pkg.go.dev/go.einride.tech/aip) and
+[`go.einride.tech/spanner-aip`](https://pkg.go.dev/go.einride.tech/spanner-aip).
+Supports [AIP-132](https://google.aip.dev/132) ordering and offset-based
+pagination with the limit+1 pattern for `next_page_token`.
+
+- [AIP-132: Standard methods: List](https://google.aip.dev/132)
+- [AIP-160: Filtering](https://google.aip.dev/160)

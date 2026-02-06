@@ -1,0 +1,10 @@
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (1, 'Bohemian Rhapsody', 'Queen', 'Rock', 1975);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (2, 'Stairway to Heaven', 'Led Zeppelin', 'Rock', 1971);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (3, 'So What', 'Miles Davis', 'Jazz', 1959);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (4, 'Take Five', 'Dave Brubeck', 'Jazz', 1959);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (5, 'Smells Like Teen Spirit', 'Nirvana', 'Rock', 1991);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (6, 'Blue in Green', 'Miles Davis', 'Jazz', 1959);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (7, 'Billie Jean', 'Michael Jackson', 'Pop', 1982);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (8, 'Like a Prayer', 'Madonna', 'Pop', 1989);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (9, 'Hotel California', 'Eagles', 'Rock', 1977);
+INSERT INTO Tracks (SongId, Title, Artist, Genre, Year) VALUES (10, 'Purple Rain', 'Prince', 'Pop', 1984);
