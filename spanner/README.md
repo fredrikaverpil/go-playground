@@ -86,8 +86,68 @@ matching. `SEARCH_NGRAMS()` finds candidates sharing n-grams with the query, and
 `SCORE_NGRAMS()` ranks by Jaccard similarity. Handles misspellings and partial
 word matches.
 
+#### `TOKENIZE_SUBSTRING` configuration
+
+Google recommends `ngram_size_min=>2, ngram_size_max=>3` as a starting point for
+fuzzy search / typo matching. Key guidance:
+
+- **Avoid `ngram_size_min=1`** — single-character n-grams match too many
+  documents and bloat the index. From the docs: "We don't recommend one character
+  n-grams because they could match a very large number of documents."
+- **Substring indexes use 10-30x more storage** than full-text indexes over the
+  same data. The overhead grows as the gap between `ngram_size_min` and
+  `ngram_size_max` widens.
+- **`ngram_size_min=>4, ngram_size_max=>6`** is recommended for substring search
+  (exact substring matching, not fuzzy).
+- **`short_tokens_only_for_anchors=>TRUE`** reduces token count when only
+  prefix/suffix matching is needed (requires `relative_search_types` to be set
+  to a prefix or suffix mode).
+- Only increase `ngram_size_min` when you control the queries and can guarantee
+  the minimum query length meets or exceeds `ngram_size_min`.
+
+#### `SCORE_NGRAMS`
+
+Uses Jaccard similarity over trigrams:
+`shared_ngrams / (source_ngrams + query_ngrams - shared_ngrams)`. The
+`algorithm` parameter only supports `"trigrams"` (default, and the only option).
+
+- **Always use with `SEARCH_NGRAMS`** in a filter + rank pattern. Use the same
+  query parameter in both functions.
+- **Needs the source column** (not just the index), so include the source column
+  in the search index's `STORING` clause to avoid a join with the base table.
+- **Use an inner `LIMIT`** to avoid expensive queries when popular n-gram
+  combinations are encountered.
+
+Recommended query pattern:
+
+```sql
+SELECT AlbumId FROM (
+  SELECT AlbumId, SCORE_NGRAMS(Title_Tokens, @p) AS score
+  FROM Albums
+  WHERE SEARCH_NGRAMS(Title_Tokens, @p)
+  LIMIT 10000
+)
+ORDER BY score DESC
+LIMIT 10
+```
+
+#### Full-text search vs fuzzy search
+
+| | Full-text (`SEARCH` + `SCORE`) | Fuzzy (`SEARCH_NGRAMS` + `SCORE_NGRAMS`) |
+| --- | --- | --- |
+| Tokenization | Words (`TOKENIZE_FULLTEXT`) | Character n-grams (`TOKENIZE_SUBSTRING`) |
+| Matching | Exact words (with stemming) | Approximate (shared n-grams) |
+| Typo tolerance | No | Yes |
+| Partial words | No | Yes |
+| Boolean queries | Yes (`OR`, `AND`) | No |
+| Phrase matching | Yes | No |
+| Scoring | TF-IDF based relevance | Jaccard similarity over trigrams |
+| Index overhead | Baseline | 10-30x more storage |
+
 - [Find approximate matches with fuzzy search](https://docs.cloud.google.com/spanner/docs/full-text-search/fuzzy-search)
+- [Perform a substring search](https://cloud.google.com/spanner/docs/full-text-search/substring-search)
 - [Tokenization](https://docs.cloud.google.com/spanner/docs/full-text-search/tokenization)
+- [Search functions reference](https://docs.cloud.google.com/spanner/docs/reference/standard-sql/search_functions)
 
 ### Phonetic search (SOUNDEX)
 
