@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package task.v1;
+
+option go_package = "github.com/fredrikaverpil/go-playground/protobuf-duration-nilness/gen/task/v1;taskv1";
+
+import "google/protobuf/duration.proto";
+
+message Task {
+  string name = 1;
+  google.protobuf.Duration max_duration = 2;
+}
+
+message CreateTaskRequest {
+  Task task = 1;
+}
+
+message CreateTaskResponse {
+  Task task = 1;
+}
+
+service TaskService {
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+}
