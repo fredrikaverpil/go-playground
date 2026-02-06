@@ -4,11 +4,14 @@ package task.v1;
 
 option go_package = "github.com/fredrikaverpil/go-playground/protobuf-duration-nilness/gen/task/v1;taskv1";
 
+import "buf/validate/validate.proto";
 import "google/protobuf/duration.proto";
 
 message Task {
   string name = 1;
-  google.protobuf.Duration max_duration = 2;
+  google.protobuf.Duration max_duration = 2 [
+    (buf.validate.field).duration.gt = {}
+  ];
 }
 
 message CreateTaskRequest {

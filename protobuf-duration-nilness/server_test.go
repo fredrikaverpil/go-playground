@@ -8,7 +8,9 @@ import (
 
 	taskv1 "github.com/fredrikaverpil/go-playground/protobuf-duration-nilness/gen/task/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -45,7 +47,7 @@ func TestDurationNilVsZero_GRPC(t *testing.T) {
 	client := newTestClient(t)
 	ctx := context.Background()
 
-	t.Run("unset duration stays nil over gRPC", func(t *testing.T) {
+	t.Run("unset duration is accepted", func(t *testing.T) {
 		resp, err := client.CreateTask(ctx, &taskv1.CreateTaskRequest{
 			Task: &taskv1.Task{Name: "unset"},
 		})
@@ -57,26 +59,22 @@ func TestDurationNilVsZero_GRPC(t *testing.T) {
 		}
 	})
 
-	t.Run("zero duration stays non-nil over gRPC", func(t *testing.T) {
-		resp, err := client.CreateTask(ctx, &taskv1.CreateTaskRequest{
+	t.Run("zero duration is rejected by validation", func(t *testing.T) {
+		_, err := client.CreateTask(ctx, &taskv1.CreateTaskRequest{
 			Task: &taskv1.Task{
 				Name:        "zero",
 				MaxDuration: durationpb.New(0),
 			},
 		})
-		if err != nil {
-			t.Fatalf("CreateTask: %v", err)
+		if err == nil {
+			t.Fatal("expected error for zero duration, got nil")
 		}
-		d := resp.GetTask().GetMaxDuration()
-		if d == nil {
-			t.Fatal("expected non-nil duration after gRPC round-trip")
-		}
-		if d.GetSeconds() != 0 || d.GetNanos() != 0 {
-			t.Fatalf("expected zero duration, got seconds=%d nanos=%d", d.GetSeconds(), d.GetNanos())
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.InvalidArgument {
+			t.Fatalf("expected InvalidArgument, got %v", err)
 		}
 	})
 
-	t.Run("5 minute duration preserved over gRPC", func(t *testing.T) {
+	t.Run("5 minute duration is accepted and preserved", func(t *testing.T) {
 		resp, err := client.CreateTask(ctx, &taskv1.CreateTaskRequest{
 			Task: &taskv1.Task{
 				Name:        "five-min",
