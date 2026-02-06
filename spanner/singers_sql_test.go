@@ -2,19 +2,19 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"testing"
 
-	"cloud.google.com/go/spanner"
-	"google.golang.org/api/iterator"
 	"gotest.tools/v3/assert"
 )
 
-func TestSingersSpanner(t *testing.T) {
+func TestSingersSQL(t *testing.T) {
 	ctx := context.Background()
 	applySchema(t, ctx, "singers.sql")
 	client := newClient(t, ctx)
 	applySeed(t, ctx, client, "singers.sql")
+	db := newDB(t, ctx)
 
 	expected := []Artist{
 		{SingerID: 1, FirstName: "Marc", LastName: "Richards", Metadata: Metadata{Age: 30, City: "New York"}},
@@ -25,37 +25,32 @@ func TestSingersSpanner(t *testing.T) {
 	}
 	got := make([]Artist, 0, len(expected))
 
-	iter := client.Single().Query(ctx, spanner.NewStatement(`
+	rows, err := db.QueryContext(ctx, `
 		SELECT SingerId, FirstName, LastName, Metadata
 		FROM Singers
 		ORDER BY SingerId
-	`))
-	defer iter.Stop()
-	for {
-		row, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			t.Fatalf("read row: %v", err)
-		}
+	`)
+	if err != nil {
+		t.Fatalf("query: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
 		var singerID int64
 		var firstName, lastName string
-		var spannerMetadata spanner.NullJSON
-		if err := row.Columns(&singerID, &firstName, &lastName, &spannerMetadata); err != nil {
+		var rawJSON sql.NullString
+		if err := rows.Scan(&singerID, &firstName, &lastName, &rawJSON); err != nil {
 			t.Fatalf("scan columns: %v", err)
 		}
 		var metadata Metadata
-		if spannerMetadata.Valid {
-			jsonBytes, err := json.Marshal(spannerMetadata.Value)
-			if err != nil {
-				t.Fatalf("marshal JSON value: %v", err)
-			}
-			if err := json.Unmarshal(jsonBytes, &metadata); err != nil {
+		if rawJSON.Valid {
+			if err := json.Unmarshal([]byte(rawJSON.String), &metadata); err != nil {
 				t.Fatalf("unmarshal JSON: %v", err)
 			}
 		}
 		got = append(got, Artist{SingerID: singerID, FirstName: firstName, LastName: lastName, Metadata: metadata})
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows iteration: %v", err)
 	}
 
 	assert.DeepEqual(t, got, expected)

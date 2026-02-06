@@ -10,6 +10,15 @@ go test -v -count=1 -race ./...
 
 The `-count=1` avoids caching.
 
+### Benchmarks
+
+```bash
+go test -bench=. -benchmem -count=1 -run='^$' ./...
+```
+
+Each benchmark compares the native `spanner.Client` against `database/sql` (via
+[go-sql-spanner](https://github.com/googleapis/go-sql-spanner)).
+
 ## How it works
 
 `main_test.go` contains `TestMain`, which:
@@ -22,15 +31,19 @@ The `-count=1` avoids caching.
 
 Each test uses shared helpers from `testhelpers_test.go` to apply schema (DDL)
 and seed data (DML) from embedded SQL files before running queries. Schema and
-seed files are named after the test that uses them (1:1 mapping):
+seed files are named after the experiment (1:1 mapping):
 
-| Test | Schema | Seed |
-|---|---|---|
-| `singers_test.go` | `schema/singers.sql` | `seed/singers.sql` |
-| `fulltext_search_test.go` | `schema/fulltext_search.sql` | `seed/fulltext_search.sql` |
-| `fuzzy_search_test.go` | `schema/fuzzy_search.sql` | `seed/fuzzy_search.sql` |
-| `phonetic_search_test.go` | `schema/phonetic_search.sql` | `seed/phonetic_search.sql` |
-| `list_filter_test.go` | `schema/list_filter.sql` | `seed/list_filter.sql` |
+| Experiment | Native (`_spanner`) | database/sql (`_sql`) | Benchmark (`_bench`) | Schema | Seed |
+|---|---|---|---|---|---|
+| Singers | `singers_spanner_test.go` | `singers_sql_test.go` | `singers_bench_test.go` | `schema/singers.sql` | `seed/singers.sql` |
+| Full-text search | `fulltext_search_spanner_test.go` | `fulltext_search_sql_test.go` | `fulltext_search_bench_test.go` | `schema/fulltext_search.sql` | `seed/fulltext_search.sql` |
+| Fuzzy search | `fuzzy_search_spanner_test.go` | `fuzzy_search_sql_test.go` | `fuzzy_search_bench_test.go` | `schema/fuzzy_search.sql` | `seed/fuzzy_search.sql` |
+| Phonetic search | `phonetic_search_spanner_test.go` | `phonetic_search_sql_test.go` | `phonetic_search_bench_test.go` | `schema/phonetic_search.sql` | `seed/phonetic_search.sql` |
+| List filter | `list_filter_spanner_test.go` | `list_filter_sql_test.go` | `list_filter_bench_test.go` | `schema/list_filter.sql` | `seed/list_filter.sql` |
+
+Experiments with shared types also have an unsuffixed `_test.go` file (e.g.
+`singers_test.go`, `list_filter_test.go`) containing only type definitions and
+declarations.
 
 ## Experiments
 

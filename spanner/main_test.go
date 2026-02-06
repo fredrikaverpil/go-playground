@@ -31,9 +31,12 @@ func testMain(m *testing.M) int {
 		fmt.Fprintf(os.Stderr, "open log file: %v\n", err)
 		return 1
 	}
-	defer logFile.Close()
+	defer func() { _ = logFile.Close() }()
 
-	os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	if err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010"); err != nil {
+		fmt.Fprintf(os.Stderr, "set env: %v\n", err)
+		return 1
+	}
 
 	go startContainer(logFile)
 	defer stopContainer()
@@ -105,7 +108,7 @@ func allOpen(ports []string) bool {
 		if err != nil {
 			return false
 		}
-		conn.Close()
+		_ = conn.Close()
 	}
 	return true
 }
@@ -132,7 +135,7 @@ func createInstance(ctx context.Context, uri string) error {
 	if err != nil {
 		return fmt.Errorf("create instance admin client: %w", err)
 	}
-	defer adminClient.Close()
+	defer func() { _ = adminClient.Close() }()
 
 	_, err = adminClient.GetInstance(ctx, &instancepb.GetInstanceRequest{Name: instanceName})
 	if err == nil {
@@ -164,7 +167,7 @@ func recreateDatabase(ctx context.Context, uri string) error {
 	if err != nil {
 		return fmt.Errorf("create database admin client: %w", err)
 	}
-	defer adminClient.Close()
+	defer func() { _ = adminClient.Close() }()
 
 	// Drop if it already exists.
 	_, err = adminClient.GetDatabase(ctx, &databasepb.GetDatabaseRequest{Name: uri})
