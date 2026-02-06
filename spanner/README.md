@@ -53,6 +53,7 @@ seed files are named after the experiment (1:1 mapping):
 | Fuzzy search     | `fuzzy_search_spanner_test.go`    | `fuzzy_search_sql_test.go`    | `fuzzy_search_bench_test.go`    | `schema/fuzzy_search.sql`    | `seed/fuzzy_search.sql`    |
 | Phonetic search  | `phonetic_search_spanner_test.go` | `phonetic_search_sql_test.go` | `phonetic_search_bench_test.go` | `schema/phonetic_search.sql` | `seed/phonetic_search.sql` |
 | List filter      | `list_filter_spanner_test.go`     | `list_filter_sql_test.go`     | `list_filter_bench_test.go`     | `schema/list_filter.sql`     | `seed/list_filter.sql`     |
+| N-gram bench     | —                                 | —                             | `ngram_bench_test.go`           | `schema/ngram_bench.sql`     | `seed/ngram_bench.sql`     |
 
 Experiments with shared types also have an unsuffixed `_test.go` file (e.g.
 `singers_test.go`, `list_filter_test.go`) containing only type definitions and
@@ -109,3 +110,14 @@ pagination with the limit+1 pattern for `next_page_token`.
 
 - [AIP-132: Standard methods: List](https://google.aip.dev/132)
 - [AIP-160: Filtering](https://google.aip.dev/160)
+
+### N-gram size benchmark
+
+Compares `ngram_size_min=>1` vs `ngram_size_min=>2` in `TOKENIZE_SUBSTRING` to
+measure the impact on `SEARCH_NGRAMS` + `SCORE_NGRAMS` query performance. Uses
+two identical tables with different tokenization configs and the same 50-row
+dataset. Only benchmarks the native `spanner.Client` since the comparison is
+between tokenization parameters, not drivers.
+
+- [Find approximate matches with fuzzy search](https://docs.cloud.google.com/spanner/docs/full-text-search/fuzzy-search)
+- [Tokenization](https://docs.cloud.google.com/spanner/docs/full-text-search/tokenization)
