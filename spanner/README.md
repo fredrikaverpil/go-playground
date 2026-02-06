@@ -131,6 +131,27 @@ ORDER BY score DESC
 LIMIT 10
 ```
 
+#### Spanner search approaches
+
+| Approach | Function | Tolerates typos? | Partial words? | Use case |
+| --- | --- | --- | --- | --- |
+| Fuzzy search | `SEARCH_NGRAMS` | Yes | Yes | User-facing search where input has typos |
+| Substring search | `SEARCH_SUBSTRING` | No | Yes | Exact substring filter (indexed `LIKE '%foo%'`) |
+| Full-text search | `SEARCH` | No | No | Keyword/phrase search over documents |
+| Phonetic search | `SOUNDEX` + `TOKEN` | Sound-alike only | No | Name matching (Steven/Stephen) |
+
+For user-facing search boxes with free-form text input, `SEARCH_NGRAMS` is the
+best fit due to its typo tolerance. `SEARCH_SUBSTRING` would be the alternative
+when input is always exact (e.g. copy-pasted identifiers, autocomplete
+selections) — cheaper on index storage, more precise, but zero typo tolerance.
+The n-gram size benchmark below focuses on `SEARCH_NGRAMS` for this reason.
+
+Note: `relative_search_types` in `TOKENIZE_SUBSTRING` generates anchor tokens
+for `SEARCH_SUBSTRING` positional matching (word prefix, suffix, phrase
+adjacency). `SEARCH_NGRAMS` ignores these anchors, so enabling
+`relative_search_types` when only using `SEARCH_NGRAMS` bloats the index
+without benefit.
+
 #### Full-text search vs fuzzy search
 
 | | Full-text (`SEARCH` + `SCORE`) | Fuzzy (`SEARCH_NGRAMS` + `SCORE_NGRAMS`) |
