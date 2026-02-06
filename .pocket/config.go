@@ -24,7 +24,6 @@ var Config = &pk.Config{
 			pk.WithFlag(github.Workflows, "include-pocket-matrix", true),
 			pk.WithContextValue(github.MatrixConfigKey{}, github.MatrixConfig{
 				DefaultPlatforms: []string{"ubuntu-latest"},
-				ExcludeTasks:     []string{"github-workflows"},
 			}),
 		),
 	),
