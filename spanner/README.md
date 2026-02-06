@@ -21,13 +21,13 @@ Each benchmark compares the native `spanner.Client` against `database/sql` (via
 
 Results on Apple M2 (emulator, `count=1`):
 
-| Benchmark | Query | `spanner` ns/op | `database/sql` ns/op | Ratio |
-| --- | --- | ---: | ---: | ---: |
-| Singers | `SELECT` with JSON column | 2,576,532 | 3,994,969 | 1.55x |
-| FullTextSearch | `SEARCH()` on full-text tokens | 2,645,714 | 3,981,792 | 1.51x |
-| FuzzySearch | `SEARCH_NGRAMS` + `SCORE_NGRAMS` | 2,676,155 | 4,134,266 | 1.54x |
-| PhoneticSearch | `SOUNDEX`-based equality filter | 2,576,991 | 3,971,287 | 1.54x |
-| ListFilter | Parameterized `WHERE` clause | 2,529,799 | 3,891,600 | 1.54x |
+| Benchmark      | Query                            | `spanner` ns/op | `database/sql` ns/op | Ratio |
+| -------------- | -------------------------------- | --------------: | -------------------: | ----: |
+| Singers        | `SELECT` with JSON column        |       2,576,532 |            3,994,969 | 1.55x |
+| FullTextSearch | `SEARCH()` on full-text tokens   |       2,645,714 |            3,981,792 | 1.51x |
+| FuzzySearch    | `SEARCH_NGRAMS` + `SCORE_NGRAMS` |       2,676,155 |            4,134,266 | 1.54x |
+| PhoneticSearch | `SOUNDEX`-based equality filter  |       2,576,991 |            3,971,287 | 1.54x |
+| ListFilter     | Parameterized `WHERE` clause     |       2,529,799 |            3,891,600 | 1.54x |
 
 The native client is consistently ~1.5x faster than `database/sql`, which adds
 overhead from the generic `sql.DB` abstraction layer.
@@ -133,12 +133,12 @@ LIMIT 10
 
 #### Spanner search approaches
 
-| Approach | Function | Tolerates typos? | Partial words? | Use case |
-| --- | --- | --- | --- | --- |
-| Fuzzy search | `SEARCH_NGRAMS` | Yes | Yes | User-facing search where input has typos |
-| Substring search | `SEARCH_SUBSTRING` | No | Yes | Exact substring filter (indexed `LIKE '%foo%'`) |
-| Full-text search | `SEARCH` | No | No | Keyword/phrase search over documents |
-| Phonetic search | `SOUNDEX` + `TOKEN` | Sound-alike only | No | Name matching (Steven/Stephen) |
+| Approach         | Function            | Tolerates typos? | Partial words? | Use case                                        |
+| ---------------- | ------------------- | ---------------- | -------------- | ----------------------------------------------- |
+| Fuzzy search     | `SEARCH_NGRAMS`     | Yes              | Yes            | User-facing search where input has typos        |
+| Substring search | `SEARCH_SUBSTRING`  | No               | Yes            | Exact substring filter (indexed `LIKE '%foo%'`) |
+| Full-text search | `SEARCH`            | No               | No             | Keyword/phrase search over documents            |
+| Phonetic search  | `SOUNDEX` + `TOKEN` | Sound-alike only | No             | Name matching (Steven/Stephen)                  |
 
 For user-facing search boxes with free-form text input, `SEARCH_NGRAMS` is the
 best fit due to its typo tolerance. `SEARCH_SUBSTRING` would be the alternative
@@ -154,16 +154,16 @@ without benefit.
 
 #### Full-text search vs fuzzy search
 
-| | Full-text (`SEARCH` + `SCORE`) | Fuzzy (`SEARCH_NGRAMS` + `SCORE_NGRAMS`) |
-| --- | --- | --- |
-| Tokenization | Words (`TOKENIZE_FULLTEXT`) | Character n-grams (`TOKENIZE_SUBSTRING`) |
-| Matching | Exact words (with stemming) | Approximate (shared n-grams) |
-| Typo tolerance | No | Yes |
-| Partial words | No | Yes |
-| Boolean queries | Yes (`OR`, `AND`) | No |
-| Phrase matching | Yes | No |
-| Scoring | TF-IDF based relevance | Jaccard similarity over trigrams |
-| Index overhead | Baseline | 10-30x more storage |
+|                 | Full-text (`SEARCH` + `SCORE`) | Fuzzy (`SEARCH_NGRAMS` + `SCORE_NGRAMS`) |
+| --------------- | ------------------------------ | ---------------------------------------- |
+| Tokenization    | Words (`TOKENIZE_FULLTEXT`)    | Character n-grams (`TOKENIZE_SUBSTRING`) |
+| Matching        | Exact words (with stemming)    | Approximate (shared n-grams)             |
+| Typo tolerance  | No                             | Yes                                      |
+| Partial words   | No                             | Yes                                      |
+| Boolean queries | Yes (`OR`, `AND`)              | No                                       |
+| Phrase matching | Yes                            | No                                       |
+| Scoring         | TF-IDF based relevance         | Jaccard similarity over trigrams         |
+| Index overhead  | Baseline                       | 10-30x more storage                      |
 
 - [Find approximate matches with fuzzy search](https://docs.cloud.google.com/spanner/docs/full-text-search/fuzzy-search)
 - [Perform a substring search](https://cloud.google.com/spanner/docs/full-text-search/substring-search)
@@ -222,11 +222,11 @@ emulator) eliminates this bias.
 Each config in its own process with a fresh emulator. Results on Apple M2
 (emulator, `count=3`):
 
-| Config | Run 1 ns/op | Run 2 ns/op | Run 3 ns/op | B/op | allocs/op |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `ngram_min_1` | 3,029,308 | 3,848,926 | 4,591,408 | ~21,460 | 328 |
-| `ngram_min_2` | 2,960,212 | 3,869,940 | 4,803,368 | ~21,460 | 328 |
-| `ngram_min_3` | 2,921,224 | 3,831,745 | 4,683,471 | ~21,460 | 328 |
+| Config        | Run 1 ns/op | Run 2 ns/op | Run 3 ns/op |    B/op | allocs/op |
+| ------------- | ----------: | ----------: | ----------: | ------: | --------: |
+| `ngram_min_1` |   3,029,308 |   3,848,926 |   4,591,408 | ~21,460 |       328 |
+| `ngram_min_2` |   2,960,212 |   3,869,940 |   4,803,368 | ~21,460 |       328 |
+| `ngram_min_3` |   2,921,224 |   3,831,745 |   4,683,471 | ~21,460 |       328 |
 
 **No measurable difference** between `ngram_size_min=1`, `=2`, and `=3` on the
 emulator. All three configs produce the same times within noise (~3.0ms →
@@ -243,19 +243,19 @@ necessary:
 
 `BenchmarkNgram` (ascending: 1 → 2 → 3):
 
-| Config | Run 1 ns/op | Run 3 ns/op |
-| --- | ---: | ---: |
-| `ngram_min_1` (runs first) | 3,042,706 | 4,671,490 |
-| `ngram_min_2` (runs second) | 5,211,144 | 6,074,381 |
-| `ngram_min_3` (runs third) | 6,525,386 | 7,143,420 |
+| Config                      | Run 1 ns/op | Run 3 ns/op |
+| --------------------------- | ----------: | ----------: |
+| `ngram_min_1` (runs first)  |   3,042,706 |   4,671,490 |
+| `ngram_min_2` (runs second) |   5,211,144 |   6,074,381 |
+| `ngram_min_3` (runs third)  |   6,525,386 |   7,143,420 |
 
 `BenchmarkNgramReversed` (descending: 3 → 2 → 1):
 
-| Config | Run 1 ns/op | Run 3 ns/op |
-| --- | ---: | ---: |
-| `ngram_min_3` (runs first) | 7,635,329 | 8,202,486 |
-| `ngram_min_2` (runs second) | 8,513,336 | 8,934,733 |
-| `ngram_min_1` (runs third) | 9,020,893 | 9,531,930 |
+| Config                      | Run 1 ns/op | Run 3 ns/op |
+| --------------------------- | ----------: | ----------: |
+| `ngram_min_3` (runs first)  |   7,635,329 |   8,202,486 |
+| `ngram_min_2` (runs second) |   8,513,336 |   8,934,733 |
+| `ngram_min_1` (runs third)  |   9,020,893 |   9,531,930 |
 
 Whichever config runs first always gets the fastest times. `ngram_min_1` went
 from 3.0ms (first) to 9.0ms (last) by simply changing the execution order.
