@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/fredrikaverpil/pocket/pk"
+	"github.com/fredrikaverpil/pocket/tasks/github"
 	"github.com/fredrikaverpil/pocket/tasks/golang"
 )
 
@@ -12,6 +13,15 @@ var Config = &pk.Config{
 		pk.WithOptions(
 			golang.Tasks(),
 			pk.WithDetect(golang.Detect()),
+		),
+		pk.WithOptions(
+			github.Tasks(),
+			pk.WithFlag(github.Workflows, "skip-pocket", true),
+			pk.WithFlag(github.Workflows, "include-pocket-matrix", true),
+			pk.WithContextValue(github.MatrixConfigKey{}, github.MatrixConfig{
+				DefaultPlatforms: []string{"ubuntu-latest"},
+				ExcludeTasks:     []string{"github-workflows"},
+			}),
 		),
 	),
 
