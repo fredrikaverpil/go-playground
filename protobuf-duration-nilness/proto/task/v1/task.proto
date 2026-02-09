@@ -10,7 +10,7 @@ import "google/protobuf/duration.proto";
 message Task {
   string name = 1;
   google.protobuf.Duration max_duration = 2 [
-    (buf.validate.field).duration.gt = {}
+    (buf.validate.field).duration.gt = {seconds: 0}
   ];
 }
 
