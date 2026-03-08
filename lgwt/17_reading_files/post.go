@@ -31,7 +31,7 @@ const (
 )
 
 func newPost(postBody io.Reader) (Post, error) {
-	// Implementation as part of excercise. I'm not using it as it depends on the order of calls.
+	// Implementation as part of exercise. I'm not using it as it depends on the order of calls.
 	//
 	// readMetaLine := func(tagName string) string {
 	// 	scanner.Scan() // advance the scanner to the next line

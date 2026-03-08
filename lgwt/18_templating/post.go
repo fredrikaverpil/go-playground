@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// Post is a representation of a post
+// Post is a representation of a post.
 type Post struct {
 	Title, Description, Body string
 	Tags                     []string
