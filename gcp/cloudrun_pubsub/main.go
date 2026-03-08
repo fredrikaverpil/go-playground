@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -73,7 +72,9 @@ func main() {
 		Addr:              ":8080",
 		ReadHeaderTimeout: 10 * time.Second,
 	}
-	log.Fatal(server.ListenAndServe())
+	if err := server.ListenAndServe(); err != nil {
+		logger.Error("Server failed", "error", err)
+	}
 }
 
 func NewLogger() *slog.Logger {
