@@ -78,10 +78,13 @@ func applySeed(tb testing.TB, ctx context.Context, client *spanner.Client, files
 				statements = append(statements, spanner.NewStatement(s))
 			}
 
-			_, err = client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-				_, err := txn.BatchUpdate(ctx, statements)
-				return err
-			})
+			_, err = client.ReadWriteTransaction(
+				ctx,
+				func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
+					_, err := txn.BatchUpdate(ctx, statements)
+					return err
+				},
+			)
 			if err != nil {
 				tb.Fatalf("apply seed data: %v", err)
 			}

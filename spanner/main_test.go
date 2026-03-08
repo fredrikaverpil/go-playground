@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 }
 
 func testMain(m *testing.M) int {
-	logFile, err := os.OpenFile("spanner.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("spanner.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "open log file: %v\n", err)
 		return 1
