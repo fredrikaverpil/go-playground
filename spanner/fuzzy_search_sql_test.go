@@ -9,9 +9,9 @@ import (
 
 func TestFuzzySearchSQL(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "fuzzy_search.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "fuzzy_search.sql")
+	applySchema(ctx, t, "fuzzy_search.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "fuzzy_search.sql")
 	db := newDB(t, ctx)
 
 	t.Run("misspelled query finds correct result", func(t *testing.T) {

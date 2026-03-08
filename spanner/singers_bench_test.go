@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -11,9 +12,9 @@ import (
 
 func BenchmarkSingers(b *testing.B) {
 	ctx := context.Background()
-	applySchema(b, ctx, "singers.sql")
-	client := newClient(b, ctx)
-	applySeed(b, ctx, client, "singers.sql")
+	applySchema(ctx, b, "singers.sql")
+	client := newClient(ctx, b)
+	applySeed(ctx, b, client, "singers.sql")
 	db := newDB(b, ctx)
 
 	query := `
@@ -27,7 +28,7 @@ func BenchmarkSingers(b *testing.B) {
 			iter := client.Single().Query(ctx, spanner.NewStatement(query))
 			for {
 				row, err := iter.Next()
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if err != nil {

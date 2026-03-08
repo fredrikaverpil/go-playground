@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -10,9 +11,9 @@ import (
 
 func BenchmarkPhoneticSearch(b *testing.B) {
 	ctx := context.Background()
-	applySchema(b, ctx, "phonetic_search.sql")
-	client := newClient(b, ctx)
-	applySeed(b, ctx, client, "phonetic_search.sql")
+	applySchema(ctx, b, "phonetic_search.sql")
+	client := newClient(ctx, b)
+	applySeed(ctx, b, client, "phonetic_search.sql")
 	db := newDB(b, ctx)
 
 	query := `
@@ -27,7 +28,7 @@ func BenchmarkPhoneticSearch(b *testing.B) {
 			iter := client.Single().Query(ctx, spanner.NewStatement(query))
 			for {
 				row, err := iter.Next()
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if err != nil {

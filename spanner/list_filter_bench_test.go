@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -11,9 +12,9 @@ import (
 
 func BenchmarkListFilter(b *testing.B) {
 	ctx := context.Background()
-	applySchema(b, ctx, "list_filter.sql")
-	client := newClient(b, ctx)
-	applySeed(b, ctx, client, "list_filter.sql")
+	applySchema(ctx, b, "list_filter.sql")
+	client := newClient(ctx, b)
+	applySeed(ctx, b, client, "list_filter.sql")
 	db := newDB(b, ctx)
 
 	query := `SELECT SongId, Title, Artist, Genre, Year FROM Tracks WHERE Genre = @genre ORDER BY SongId`
@@ -27,14 +28,14 @@ func BenchmarkListFilter(b *testing.B) {
 			iter := client.Single().Query(ctx, stmt)
 			for {
 				row, err := iter.Next()
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if err != nil {
 					b.Fatalf("read row: %v", err)
 				}
 				var s Song
-				if err := row.Columns(&s.SongId, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
+				if err := row.Columns(&s.SongID, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
 					b.Fatalf("scan columns: %v", err)
 				}
 			}
@@ -50,11 +51,11 @@ func BenchmarkListFilter(b *testing.B) {
 			}
 			for rows.Next() {
 				var s Song
-				if err := rows.Scan(&s.SongId, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
+				if err := rows.Scan(&s.SongID, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
 					b.Fatalf("scan columns: %v", err)
 				}
 			}
-			_ = rows.Close()
+			_ = rows.Close() //nolint:sqlclosecheck // defer would accumulate in bench loop
 			if err := rows.Err(); err != nil {
 				b.Fatalf("rows iteration: %v", err)
 			}

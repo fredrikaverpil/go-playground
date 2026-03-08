@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -14,9 +15,9 @@ import (
 // that find results despite different spellings of similar-sounding names.
 func TestPhoneticSearchSpanner(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "phonetic_search.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "phonetic_search.sql")
+	applySchema(ctx, t, "phonetic_search.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "phonetic_search.sql")
 
 	t.Run("soundex codes for similar names", func(t *testing.T) {
 		// Verify that SOUNDEX maps similar-sounding names to the same code.
@@ -37,7 +38,7 @@ func TestPhoneticSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -73,7 +74,7 @@ func TestPhoneticSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -102,7 +103,7 @@ func TestPhoneticSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
