@@ -95,7 +95,7 @@ func (s *Server) handleConnection(handler http.Handler, conn net.Conn) error {
 	req.Header = make(http.Header)
 	for {
 		line, err := headerReader.ReadLineBytes()
-		if err != nil && err != io.EOF {
+		if err != nil && !errors.Is(err, io.EOF) {
 			return err
 		} else if err != nil {
 			break
@@ -272,7 +272,7 @@ func main() {
 			slog.Error("headers encode failed", "error", err)
 		}
 	})
-	mux.HandleFunc("/nothing", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/nothing", func(_ http.ResponseWriter, _ *http.Request) {})
 	s := Server{
 		Addr:    addr,
 		Handler: mux,
