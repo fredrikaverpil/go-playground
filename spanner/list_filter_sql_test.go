@@ -119,7 +119,7 @@ func TestListFilterSQL(t *testing.T) {
 	applySchema(ctx, t, "list_filter.sql")
 	client := newClient(ctx, t)
 	applySeed(ctx, t, client, "list_filter.sql")
-	db := newDB(t, ctx)
+	db := newDB(ctx, t)
 
 	t.Run("no filter returns all songs", func(t *testing.T) {
 		resp, err := listSongsSQL(ctx, db, ListSongsRequest{})

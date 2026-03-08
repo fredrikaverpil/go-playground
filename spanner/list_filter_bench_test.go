@@ -15,7 +15,7 @@ func BenchmarkListFilter(b *testing.B) {
 	applySchema(ctx, b, "list_filter.sql")
 	client := newClient(ctx, b)
 	applySeed(ctx, b, client, "list_filter.sql")
-	db := newDB(b, ctx)
+	db := newDB(ctx, b)
 
 	query := `SELECT SongId, Title, Artist, Genre, Year FROM Tracks WHERE Genre = @genre ORDER BY SongId`
 

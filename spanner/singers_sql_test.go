@@ -14,7 +14,7 @@ func TestSingersSQL(t *testing.T) {
 	applySchema(ctx, t, "singers.sql")
 	client := newClient(ctx, t)
 	applySeed(ctx, t, client, "singers.sql")
-	db := newDB(t, ctx)
+	db := newDB(ctx, t)
 
 	expected := []Artist{
 		{SingerID: 1, FirstName: "Marc", LastName: "Richards", Metadata: Metadata{Age: 30, City: "New York"}},
