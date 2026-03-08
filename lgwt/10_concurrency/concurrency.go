@@ -35,7 +35,7 @@ func CheckWebsites(wc WebsiteChecker, urls []string) map[string]bool {
 	fmt.Println("Waiting for results...")
 
 	// This part is running linearly
-	for i := 0; i < len(urls); i++ {
+	for range urls {
 		// Receive statement
 		r := <-resultChannel
 		fmt.Println("Received result for", r.string)

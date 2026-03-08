@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -20,7 +21,7 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 
 	// simulate long-running (or slow) operation
 	go func() {
-		var result string
+		var result strings.Builder
 		for _, c := range s.response {
 			select {
 			case <-ctx.Done():
@@ -28,10 +29,10 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 				return
 			default:
 				time.Sleep(10 * time.Millisecond)
-				result += string(c)
+				result.WriteString(string(c))
 			}
 		}
-		data <- result
+		data <- result.String()
 	}()
 
 	select {

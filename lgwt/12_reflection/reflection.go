@@ -6,7 +6,7 @@ import (
 
 func main() {}
 
-func walk(x interface{}, fn func(input string)) {
+func walk(x any, fn func(input string)) {
 	val := getValue(x)
 
 	switch val.Kind() {
@@ -40,7 +40,7 @@ func walk(x interface{}, fn func(input string)) {
 	}
 }
 
-func getValue(x interface{}) reflect.Value {
+func getValue(x any) reflect.Value {
 	val := reflect.ValueOf(x)
 
 	if val.Kind() == reflect.Pointer {
