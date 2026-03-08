@@ -18,12 +18,11 @@ var Config = &pk.Config{
 		markdown.Tasks(),
 		pk.WithOptions(
 			github.Tasks(),
-			pk.WithFlag(github.Workflows, "skip-pocket", true),
-			pk.WithFlag(github.Workflows, "skip-release", true),
-			pk.WithFlag(github.Workflows, "skip-stale", true),
-			pk.WithFlag(github.Workflows, "include-pocket-matrix", true),
-			pk.WithContextValue(github.MatrixConfigKey{}, github.MatrixConfig{
-				DefaultPlatforms: []string{"ubuntu-latest"},
+			pk.WithFlags(github.WorkflowFlags{
+				PerPocketTaskJob:      new(true),
+				ReleasePleaseWorkflow: new(false),
+				StaleWorkflow:         new(false),
+				Platforms:             []github.Platform{github.Ubuntu},
 			}),
 		),
 	),
