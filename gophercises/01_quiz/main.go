@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"os"
 )
@@ -32,37 +31,33 @@ func main() {
 
 	reader := csv.NewReader(file)
 
-	var problems []problem
-
-	for {
-		line, err := reader.Read()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Print(err)
-			os.Exit(1)
-		}
-
-		problems = append(problems, problem{question: line[0], correct: line[1]})
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Printf("Failed to read CSV: %v", err)
+		return
 	}
 
-	for i, p := range problems {
-		fmt.Printf("%s = ", p.question)
-		if _, err := fmt.Scanln(&p.answer); err != nil {
+	problems := make([]problem, len(records))
+	for i, line := range records {
+		problems[i] = problem{question: line[0], correct: line[1]}
+	}
+
+	for i := range problems {
+		fmt.Printf("%s = ", problems[i].question)
+		if _, err := fmt.Scanln(&problems[i].answer); err != nil {
 			log.Printf("Failed to read answer: %v", err)
 		}
-		problems[i].answer = p.answer
 	}
 
-	problems_num := len(problems)
-	correct_num := 0
+	problemsNum := len(problems)
+	correctNum := 0
 	for _, p := range problems {
 		if p.correct == p.answer {
-			correct_num++
+			correctNum++
 		}
 	}
 
-	percentage := int(float64(correct_num) / float64(problems_num) * 100)
+	percentage := int(float64(correctNum) / float64(problemsNum) * 100)
 
-	fmt.Printf("You scored %d out of %d (%d%%).\n", correct_num, problems_num, percentage)
+	fmt.Printf("You scored %d out of %d (%d%%).\n", correctNum, problemsNum, percentage)
 }
