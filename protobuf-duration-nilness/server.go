@@ -25,7 +25,8 @@ func (s *echoServer) CreateTask(
 
 // listenAndServe starts the gRPC server on the given address and blocks until it's stopped.
 func listenAndServe(addr string) error {
-	lis, err := net.Listen("tcp", addr)
+	var lc net.ListenConfig
+	lis, err := lc.Listen(context.Background(), "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("listen on %s: %w", addr, err)
 	}
