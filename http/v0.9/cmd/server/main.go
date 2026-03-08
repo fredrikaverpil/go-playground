@@ -9,7 +9,7 @@ func main() {
 	addr := "127.0.0.1:9000"
 	s := Server{
 		Addr: addr,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			if _, err := w.Write([]byte("Hello World!")); err != nil {
 				log.Printf("Failed to write response: %v", err)
 			}

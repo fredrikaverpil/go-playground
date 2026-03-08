@@ -22,6 +22,6 @@ func (r *responseBodyWriter) Write(b []byte) (int, error) {
 	return r.conn.Write(b)
 }
 
-func (r *responseBodyWriter) WriteHeader(statusCode int) {
+func (r *responseBodyWriter) WriteHeader(_ int) {
 	// unsupported with HTTP/0.9
 }
