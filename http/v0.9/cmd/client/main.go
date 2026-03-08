@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -8,7 +9,8 @@ import (
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "127.0.0.1:9000")
+	var d net.Dialer
+	conn, err := d.DialContext(context.Background(), "tcp", "127.0.0.1:9000")
 	if err != nil {
 		log.Fatalf("err: %s", err)
 	}
