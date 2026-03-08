@@ -19,7 +19,7 @@ func RacerV1(a, b string) (winner string) {
 
 func measureResponseTime(url string) time.Duration {
 	start := time.Now()
-	resp, _ := http.Get(url)
+	resp, _ := http.Get(url) //nolint:gosec,noctx // exercise code with known URL
 	if resp != nil {
 		_ = resp.Body.Close()
 	}
@@ -39,7 +39,7 @@ func RacerV2(a, b string) (winner string, err error) {
 func ping(url string) chan struct{} {
 	ch := make(chan struct{})
 	go func() {
-		resp, _ := http.Get(url)
+		resp, _ := http.Get(url) //nolint:gosec,noctx // exercise code with known URL
 		if resp != nil {
 			_ = resp.Body.Close()
 		}
@@ -50,11 +50,11 @@ func ping(url string) chan struct{} {
 
 var tenSecondTimeout = 10 * time.Second
 
-func RacerV3(a, b string) (winner string, error error) {
+func RacerV3(a, b string) (winner string, err error) {
 	return ConfigurableRacer(a, b, tenSecondTimeout)
 }
 
-func ConfigurableRacer(a, b string, timeout time.Duration) (winner string, error error) {
+func ConfigurableRacer(a, b string, timeout time.Duration) (winner string, err error) {
 	select {
 	case <-ping(a):
 		return a, nil

@@ -1,4 +1,4 @@
-package arrays_and_slices
+package arraysandslices
 
 func SumArray(numbers [5]int) int {
 	sum := 0
@@ -17,7 +17,7 @@ func SumSlice(numbers []int) int {
 }
 
 func SumAll(numbersToSum ...[]int) []int {
-	var sums []int
+	sums := make([]int, 0, len(numbersToSum))
 
 	for _, numbers := range numbersToSum {
 		sums = append(sums, SumSlice(numbers))
@@ -27,7 +27,7 @@ func SumAll(numbersToSum ...[]int) []int {
 }
 
 func SumAllTails(numbersToSum ...[]int) []int {
-	var sums []int
+	sums := make([]int, 0, len(numbersToSum))
 
 	for _, numbers := range numbersToSum {
 		if len(numbers) <= 1 {
@@ -35,7 +35,6 @@ func SumAllTails(numbersToSum ...[]int) []int {
 		} else {
 			tail := numbers[1:]
 			sums = append(sums, SumSlice(tail))
-
 		}
 	}
 
