@@ -51,7 +51,7 @@ func TestPhoneticSearchSpanner(t *testing.T) {
 			results = append(results, r)
 		}
 
-		var names []string
+		names := make([]string, 0, len(results))
 		for _, r := range results {
 			names = append(names, r.FirstName+" "+r.LastName)
 			t.Logf("  %s %s -> soundex: %s", r.FirstName, r.LastName, r.Soundex)
