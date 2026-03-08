@@ -8,7 +8,7 @@ import (
 
 // Song represents a row in the Tracks table.
 type Song struct {
-	SongId int64
+	SongID int64 `spanner:"SongId"`
 	Title  string
 	Artist string
 	Genre  string

@@ -9,9 +9,9 @@ import (
 
 func TestFullTextSearchSQL(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "fulltext_search.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "fulltext_search.sql")
+	applySchema(ctx, t, "fulltext_search.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "fulltext_search.sql")
 	db := newDB(t, ctx)
 
 	t.Run("single word search in title", func(t *testing.T) {

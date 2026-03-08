@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -13,9 +14,9 @@ import (
 // using TOKENIZE_FULLTEXT, SEARCH INDEX, SEARCH(), and SCORE().
 func TestFullTextSearchSpanner(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "fulltext_search.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "fulltext_search.sql")
+	applySchema(ctx, t, "fulltext_search.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "fulltext_search.sql")
 
 	t.Run("single word search in title", func(t *testing.T) {
 		// SEARCH(column_tokens, query) returns true if tokens match the query.
@@ -30,7 +31,7 @@ func TestFullTextSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -60,7 +61,7 @@ func TestFullTextSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -89,7 +90,7 @@ func TestFullTextSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -122,7 +123,7 @@ func TestFullTextSearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {

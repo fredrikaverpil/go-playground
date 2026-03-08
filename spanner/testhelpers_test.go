@@ -31,7 +31,7 @@ var seedFS embed.FS
 
 // applySchema reads DDL files from the embedded schema/ FS and applies them via UpdateDatabaseDdl.
 // Each file is applied at most once per test run, so multiple tests sharing the same schema are safe.
-func applySchema(tb testing.TB, ctx context.Context, files ...string) {
+func applySchema(ctx context.Context, tb testing.TB, files ...string) {
 	tb.Helper()
 	for _, file := range files {
 		once, _ := schemaOnce.LoadOrStore(file, &sync.Once{})
@@ -64,7 +64,7 @@ func applySchema(tb testing.TB, ctx context.Context, files ...string) {
 
 // applySeed reads DML files from the embedded seed/ FS and applies them via ReadWriteTransaction.
 // Each file is applied at most once per test run, so multiple tests sharing the same seed are safe.
-func applySeed(tb testing.TB, ctx context.Context, client *spanner.Client, files ...string) {
+func applySeed(ctx context.Context, tb testing.TB, client *spanner.Client, files ...string) {
 	tb.Helper()
 	for _, file := range files {
 		once, _ := seedOnce.LoadOrStore(file, &sync.Once{})
@@ -93,7 +93,7 @@ func applySeed(tb testing.TB, ctx context.Context, client *spanner.Client, files
 }
 
 // newClient creates a spanner.Client and registers cleanup via tb.Cleanup.
-func newClient(tb testing.TB, ctx context.Context) *spanner.Client {
+func newClient(ctx context.Context, tb testing.TB) *spanner.Client {
 	tb.Helper()
 	client, err := spanner.NewClient(ctx, databaseURI, option.WithoutAuthentication())
 	if err != nil {

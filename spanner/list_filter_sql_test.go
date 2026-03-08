@@ -88,10 +88,10 @@ func listSongsSQL(ctx context.Context, db *sql.DB, req ListSongsRequest) (*ListS
 	}
 	defer func() { _ = rows.Close() }()
 
-	var songs []Song
+	var songs []Song //nolint:prealloc // size unknown until iteration
 	for rows.Next() {
 		var s Song
-		if err := rows.Scan(&s.SongId, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
+		if err := rows.Scan(&s.SongID, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
 			return nil, fmt.Errorf("scan columns: %w", err)
 		}
 		songs = append(songs, s)
@@ -116,9 +116,9 @@ func listSongsSQL(ctx context.Context, db *sql.DB, req ListSongsRequest) (*ListS
 // TestListFilterSQL demonstrates AIP-132 List with AIP-160 filtering using database/sql.
 func TestListFilterSQL(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "list_filter.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "list_filter.sql")
+	applySchema(ctx, t, "list_filter.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "list_filter.sql")
 	db := newDB(t, ctx)
 
 	t.Run("no filter returns all songs", func(t *testing.T) {
@@ -208,7 +208,7 @@ func TestListFilterSQL(t *testing.T) {
 		assert.Equal(t, pages, 4)
 		assert.Equal(t, len(allSongs), 10)
 		for i, s := range allSongs {
-			assert.Equal(t, s.SongId, int64(i+1))
+			assert.Equal(t, s.SongID, int64(i+1))
 		}
 	})
 

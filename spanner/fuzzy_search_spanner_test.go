@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -14,9 +15,9 @@ import (
 // This enables finding results even when the search query contains typos.
 func TestFuzzySearchSpanner(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "fuzzy_search.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "fuzzy_search.sql")
+	applySchema(ctx, t, "fuzzy_search.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "fuzzy_search.sql")
 
 	t.Run("misspelled query finds correct result", func(t *testing.T) {
 		// SEARCH_NGRAMS finds candidates sharing n-grams with the query.
@@ -33,7 +34,7 @@ func TestFuzzySearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -71,7 +72,7 @@ func TestFuzzySearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {
@@ -106,7 +107,7 @@ func TestFuzzySearchSpanner(t *testing.T) {
 		defer iter.Stop()
 		for {
 			row, err := iter.Next()
-			if err == iterator.Done {
+			if errors.Is(err, iterator.Done) {
 				break
 			}
 			if err != nil {

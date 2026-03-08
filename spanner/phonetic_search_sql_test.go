@@ -9,9 +9,9 @@ import (
 
 func TestPhoneticSearchSQL(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "phonetic_search.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "phonetic_search.sql")
+	applySchema(ctx, t, "phonetic_search.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "phonetic_search.sql")
 	db := newDB(t, ctx)
 
 	t.Run("soundex codes for similar names", func(t *testing.T) {

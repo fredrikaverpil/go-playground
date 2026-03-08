@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -38,9 +39,9 @@ func BenchmarkNgramReversed(b *testing.B) {
 func setupNgramBench(b *testing.B) *spanner.Client {
 	b.Helper()
 	ctx := context.Background()
-	applySchema(b, ctx, "ngram_bench.sql")
-	client := newClient(b, ctx)
-	applySeed(b, ctx, client, "ngram_bench.sql")
+	applySchema(ctx, b, "ngram_bench.sql")
+	client := newClient(ctx, b)
+	applySeed(ctx, b, client, "ngram_bench.sql")
 
 	// Warm up all tables so the emulator has compiled query plans and loaded
 	// index data before the timed benchmarks start.
@@ -56,7 +57,7 @@ func setupNgramBench(b *testing.B) *spanner.Client {
 			iter := client.Single().Query(ctx, spanner.NewStatement(query))
 			for {
 				row, err := iter.Next()
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if err != nil {
@@ -88,7 +89,7 @@ func ngramBenchFunc(client *spanner.Client, table string) func(*testing.B) {
 			iter := client.Single().Query(ctx, spanner.NewStatement(query))
 			for {
 				row, err := iter.Next()
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if err != nil {

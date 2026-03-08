@@ -11,9 +11,9 @@ import (
 
 func TestSingersSQL(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "singers.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "singers.sql")
+	applySchema(ctx, t, "singers.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "singers.sql")
 	db := newDB(t, ctx)
 
 	expected := []Artist{

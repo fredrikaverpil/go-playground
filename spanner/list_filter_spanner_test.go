@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"maps"
 	"strconv"
@@ -99,17 +100,17 @@ func listSongsSpanner(ctx context.Context, client *spanner.Client, req ListSongs
 	iter := client.Single().Query(ctx, stmt)
 	defer iter.Stop()
 
-	var songs []Song
+	var songs []Song //nolint:prealloc // size unknown until iteration
 	for {
 		row, err := iter.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {
 			return nil, fmt.Errorf("read row: %w", err)
 		}
 		var s Song
-		if err := row.Columns(&s.SongId, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
+		if err := row.Columns(&s.SongID, &s.Title, &s.Artist, &s.Genre, &s.Year); err != nil {
 			return nil, fmt.Errorf("scan columns: %w", err)
 		}
 		songs = append(songs, s)
@@ -131,9 +132,9 @@ func listSongsSpanner(ctx context.Context, client *spanner.Client, req ListSongs
 // TestListFilterSpanner demonstrates AIP-132 List with AIP-160 filtering backed by Spanner.
 func TestListFilterSpanner(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "list_filter.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "list_filter.sql")
+	applySchema(ctx, t, "list_filter.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "list_filter.sql")
 
 	t.Run("no filter returns all songs", func(t *testing.T) {
 		resp, err := listSongsSpanner(ctx, client, ListSongsRequest{})
@@ -226,7 +227,7 @@ func TestListFilterSpanner(t *testing.T) {
 		assert.Equal(t, len(allSongs), 10)
 		// Verify deterministic ordering — SongIds should be 1..10.
 		for i, s := range allSongs {
-			assert.Equal(t, s.SongId, int64(i+1))
+			assert.Equal(t, s.SongID, int64(i+1))
 		}
 	})
 

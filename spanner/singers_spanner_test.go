@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -12,9 +13,9 @@ import (
 
 func TestSingersSpanner(t *testing.T) {
 	ctx := context.Background()
-	applySchema(t, ctx, "singers.sql")
-	client := newClient(t, ctx)
-	applySeed(t, ctx, client, "singers.sql")
+	applySchema(ctx, t, "singers.sql")
+	client := newClient(ctx, t)
+	applySeed(ctx, t, client, "singers.sql")
 
 	expected := []Artist{
 		{SingerID: 1, FirstName: "Marc", LastName: "Richards", Metadata: Metadata{Age: 30, City: "New York"}},
@@ -33,7 +34,7 @@ func TestSingersSpanner(t *testing.T) {
 	defer iter.Stop()
 	for {
 		row, err := iter.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {
