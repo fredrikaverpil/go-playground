@@ -26,7 +26,8 @@ func TestAddSubTestLevel2(t *testing.T) {
 
 		t.Run("Add2", func(t *testing.T) {
 			// FIXME: this causes JSON output in the Output tab, related to https://github.com/nvim-neotest/neotest-go/issues/52
-			// FIXME: this test also crashes marshal_gotest_output if run with "nearest test", but passes if test is executed from top level.
+			// FIXME: this test also crashes marshal_gotest_output if run with
+			// "nearest test", but passes if test is executed from top level.
 			if Add(1, 2) != 3 {
 				t.Error("1 + 2 did not equal 3")
 			}
