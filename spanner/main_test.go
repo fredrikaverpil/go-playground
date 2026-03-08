@@ -57,8 +57,8 @@ func testMain(m *testing.M) int {
 
 func startContainer(logFile *os.File) {
 	// Remove any leftover container from a previous run.
-	_ = exec.Command("docker", "rm", "-f", "spanner-emulator").Run()
-	cmd := exec.Command("docker",
+	_ = exec.CommandContext(context.Background(), "docker", "rm", "-f", "spanner-emulator").Run()
+	cmd := exec.CommandContext(context.Background(), "docker",
 		"run", "--rm",
 		"-p", "9020:9020",
 		"-p", "9010:9010",
@@ -80,7 +80,7 @@ func startContainer(logFile *os.File) {
 
 func stopContainer() {
 	fmt.Println("Stopping Spanner emulator...")
-	if err := exec.Command("docker", "stop", "spanner-emulator").Run(); err != nil {
+	if err := exec.CommandContext(context.Background(), "docker", "stop", "spanner-emulator").Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "docker stop: %v\n", err)
 	}
 }
@@ -104,7 +104,8 @@ func waitForPorts(ports []string, timeout time.Duration) error {
 
 func allOpen(ports []string) bool {
 	for _, port := range ports {
-		conn, err := net.Dial("tcp", "localhost:"+port)
+		var d net.Dialer
+		conn, err := d.DialContext(context.Background(), "tcp", "localhost:"+port)
 		if err != nil {
 			return false
 		}
