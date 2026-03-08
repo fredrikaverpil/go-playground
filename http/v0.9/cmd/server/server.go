@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"net/http"
@@ -15,7 +16,8 @@ func (s *Server) ServeAndListen() error {
 	if s.Handler == nil {
 		panic("http server started without a handler")
 	}
-	l, err := net.Listen("tcp", s.Addr)
+	var lc net.ListenConfig
+	l, err := lc.Listen(context.Background(), "tcp", s.Addr)
 	if err != nil {
 		return err
 	}
