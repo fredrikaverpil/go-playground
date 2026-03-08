@@ -44,6 +44,6 @@ type postViewModel struct {
 
 func newPostVM(p Post, r *PostRenderer) postViewModel {
 	vm := postViewModel{Post: p}
-	vm.HTMLBody = template.HTML(markdown.ToHTML([]byte(p.Body), r.mdParser, nil))
+	vm.HTMLBody = template.HTML(markdown.ToHTML([]byte(p.Body), r.mdParser, nil)) //nolint:gosec // markdown from trusted source
 	return vm
 }
