@@ -25,7 +25,6 @@ type Skipper struct {
 
 func Test_Level_1_Skipper(t *testing.T) {
 	for _, c := range []Skipper{{name: "Level 2a", skip: false}, {name: "Level 2b", skip: true}} {
-		c := c
 		t.Run(c.name, func(t *testing.T) {
 			if c.skip {
 				t.Skip()

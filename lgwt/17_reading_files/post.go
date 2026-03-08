@@ -66,8 +66,8 @@ func newPost(postBody io.Reader) (Post, error) {
 
 	readMetaLine := func(tagName string) string {
 		for _, line := range metaLines {
-			if strings.HasPrefix(line, tagName) {
-				return strings.TrimPrefix(line, tagName)
+			if after, ok := strings.CutPrefix(line, tagName); ok {
+				return after
 			}
 		}
 		return "" // should return an error here...

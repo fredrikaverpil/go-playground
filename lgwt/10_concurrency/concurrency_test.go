@@ -40,7 +40,7 @@ func slowStubWebsiteChecker(_ string) bool {
 // Benchmark me with: go test -v -bench="."
 func BenchmarkCheckWebsites(b *testing.B) {
 	urls := make([]string, 100)
-	for i := 0; i < len(urls); i++ {
+	for i := range urls {
 		urls[i] = "a url"
 	}
 	b.ResetTimer()

@@ -20,7 +20,7 @@ type Profile struct {
 func TestWalk(t *testing.T) {
 	tt := []struct {
 		Name          string
-		Input         interface{}
+		Input         any
 		ExpectedCalls []string
 		Skip          bool
 	}{
