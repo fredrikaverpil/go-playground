@@ -12,18 +12,17 @@ import (
 // For more details, see https://google.aip.dev/122#resource-id-segments
 func NewSystemGeneratedBase32() string {
 	base32Encoding := base32.NewEncoding("abcdefghijklmnopqrstuvwxyz234567").WithPadding(base32.NoPadding)
-	regexp := regexp.MustCompile(`^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`)
-	// Retry creating id until it matches the regexp
+	idPattern := regexp.MustCompile(`^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`)
+	// Retry creating id until it matches the pattern.
 	for {
 		id := uuid.New()
 		encodedID := base32Encoding.EncodeToString(id[:])
-		if regexp.MatchString(encodedID) {
+		if idPattern.MatchString(encodedID) {
 			fmt.Printf("Valid: %s\n", encodedID)
 			return encodedID
-		} else {
-			fmt.Printf("Not valid: %s\n", encodedID)
-			panic("whoops")
 		}
+		fmt.Printf("Not valid: %s\n", encodedID)
+		panic("whoops")
 	}
 }
 
