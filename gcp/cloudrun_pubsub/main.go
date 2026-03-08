@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -68,7 +69,11 @@ func main() {
 			}
 		}
 	})
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	server := &http.Server{
+		Addr:              ":8080",
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	log.Fatal(server.ListenAndServe())
 }
 
 func NewLogger() *slog.Logger {
@@ -121,7 +126,7 @@ func subscribeAndLog(ctx context.Context, client *pubsub.Client, topicID string,
 	cctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	err = sub.Receive(cctx, func(ctx context.Context, m *pubsub.Message) {
+	err = sub.Receive(cctx, func(_ context.Context, m *pubsub.Message) {
 		log.Info("Received message", "data", string(m.Data))
 		m.Ack() // Acknowledge that we've consumed the message.
 	})
