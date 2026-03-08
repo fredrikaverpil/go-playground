@@ -28,7 +28,8 @@ func (s *Server) ServeAndListen() error {
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Failed to accept connection: %v", err)
+			return err
 		}
 
 		go s.handleConnection(conn)
