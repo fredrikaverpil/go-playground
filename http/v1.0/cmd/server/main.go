@@ -29,7 +29,8 @@ func (s *Server) ServeAndListen() error {
 	if handler == nil {
 		handler = http.DefaultServeMux
 	}
-	l, err := net.Listen("tcp", s.Addr)
+	var lc net.ListenConfig
+	l, err := lc.Listen(context.Background(), "tcp", s.Addr)
 	if err != nil {
 		return err
 	}
