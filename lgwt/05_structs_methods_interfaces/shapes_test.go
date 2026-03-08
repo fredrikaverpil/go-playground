@@ -42,7 +42,7 @@ func TestAreaSubTests(t *testing.T) {
 	})
 }
 
-// Table driven tests
+// Table driven tests.
 func TestAreaTable(t *testing.T) {
 	// anonymous struct
 	areaTests := []struct {

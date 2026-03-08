@@ -7,18 +7,18 @@ import "errors"
 // Instead, initialize it with an empty map:
 // m := map[string]string{}
 // or
-// m := make(map[string]string)
+// m := make(map[string]string).
 type Dictionary map[string]string
 
 var (
 	ErrNotFound         = errors.New("could not find the word you were looking for")
 	ErrWordExists       = errors.New("cannot add word because it already exists")
-	ErrWordDoesNotExist = DictionaryErr("cannot update word because it does not exist")
+	ErrWordDoesNotExist = DictionaryError("cannot update word because it does not exist")
 )
 
-type DictionaryErr string
+type DictionaryError string
 
-func (e DictionaryErr) Error() string {
+func (e DictionaryError) Error() string {
 	return string(e)
 }
 
@@ -34,10 +34,10 @@ func (d Dictionary) Add(word, definition string) error {
 	// Note that it is the pointer to the map that is passed in, so we can modify the map directly.
 	_, err := d.Search(word)
 
-	switch err {
-	case ErrNotFound:
+	switch {
+	case errors.Is(err, ErrNotFound):
 		d[word] = definition
-	case nil:
+	case err == nil:
 		return ErrWordExists
 	default:
 		return err
@@ -49,10 +49,10 @@ func (d Dictionary) Add(word, definition string) error {
 func (d Dictionary) Update(word, definition string) error {
 	_, err := d.Search(word)
 
-	switch err {
-	case ErrNotFound:
+	switch {
+	case errors.Is(err, ErrNotFound):
 		return ErrWordDoesNotExist
-	case nil:
+	case err == nil:
 		d[word] = definition
 	default:
 		return err

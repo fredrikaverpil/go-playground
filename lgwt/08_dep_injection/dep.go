@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func Greet(writer io.Writer, name string) error {
@@ -13,7 +14,7 @@ func Greet(writer io.Writer, name string) error {
 	return err
 }
 
-func MyGreeterHandler(w http.ResponseWriter, r *http.Request) {
+func MyGreeterHandler(w http.ResponseWriter, _ *http.Request) {
 	if err := Greet(w, "world"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -23,5 +24,10 @@ func main() {
 	if err := Greet(os.Stdout, "Elodie"); err != nil {
 		log.Fatal(err)
 	}
-	log.Fatal(http.ListenAndServe(":5001", http.HandlerFunc(MyGreeterHandler)))
+	server := &http.Server{
+		Addr:              ":5001",
+		Handler:           http.HandlerFunc(MyGreeterHandler),
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	log.Fatal(server.ListenAndServe())
 }

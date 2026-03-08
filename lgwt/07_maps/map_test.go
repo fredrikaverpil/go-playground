@@ -1,6 +1,9 @@
 package maps
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func TestSearch(t *testing.T) {
 	dictionary := Dictionary{"test": "this is just a test"}
@@ -72,7 +75,7 @@ func TestDelete(t *testing.T) {
 	dictionary.Delete(word)
 
 	_, err := dictionary.Search(word)
-	if err != ErrNotFound {
+	if !errors.Is(err, ErrNotFound) {
 		t.Errorf("Expected %q to be deleted", word)
 	}
 }
@@ -86,7 +89,7 @@ func assertStrings(t testing.TB, got, want string) {
 
 func assertError(t testing.TB, got, want error) {
 	t.Helper()
-	if got != want {
+	if !errors.Is(got, want) {
 		t.Errorf("got error %q want %q", got, want)
 	}
 }

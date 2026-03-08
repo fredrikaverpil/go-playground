@@ -37,7 +37,7 @@ func slowStubWebsiteChecker(_ string) bool {
 	return true
 }
 
-// Benchmark me with: go test -v -bench="."
+// Benchmark me with: go test -v -bench=".".
 func BenchmarkCheckWebsites(b *testing.B) {
 	urls := make([]string, 100)
 	for i := range urls {
