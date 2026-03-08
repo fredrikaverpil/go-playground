@@ -100,7 +100,7 @@ func listSongsSpanner(ctx context.Context, client *spanner.Client, req ListSongs
 	iter := client.Single().Query(ctx, stmt)
 	defer iter.Stop()
 
-	var songs []Song //nolint:prealloc // size unknown until iteration
+	var songs []Song
 	for {
 		row, err := iter.Next()
 		if errors.Is(err, iterator.Done) {
