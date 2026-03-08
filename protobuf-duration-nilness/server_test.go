@@ -18,7 +18,8 @@ func newTestClient(t *testing.T) taskv1.TaskServiceClient {
 	t.Helper()
 
 	// Pick a random free port for the test server.
-	lis, err := net.Listen("tcp", "localhost:0")
+	var lc net.ListenConfig
+	lis, err := lc.Listen(context.Background(), "tcp", "localhost:0")
 	if err != nil {
 		t.Fatalf("listen: %v", err)
 	}
