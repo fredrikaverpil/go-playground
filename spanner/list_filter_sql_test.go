@@ -79,7 +79,7 @@ func listSongsSQL(ctx context.Context, db *sql.DB, req ListSongsRequest) (*ListS
 	query += " ORDER BY " + strings.Join(orderParts, ", ")
 	query += fmt.Sprintf(" LIMIT %d", pageSize+1)
 	if offset > 0 {
-		query += fmt.Sprintf(" OFFSET %d", offset) //nolint:gosec // offset is a parsed int64, not user-controlled string.
+		query += fmt.Sprintf(" OFFSET %d", offset) //nolint:gosec // offset is a parsed int64.
 	}
 
 	rows, err := db.QueryContext(ctx, query, args...)
