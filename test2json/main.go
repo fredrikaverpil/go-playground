@@ -10,7 +10,7 @@ func main() {
 	fmt.Println(mymath.Add(2, 3))
 }
 
-// retursn a bool
+// retursn a bool.
 func Yolo() error {
 	return nil
 }
