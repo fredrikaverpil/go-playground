@@ -14,7 +14,7 @@ func BenchmarkFuzzySearch(b *testing.B) {
 	applySchema(ctx, b, "fuzzy_search.sql")
 	client := newClient(ctx, b)
 	applySeed(ctx, b, client, "fuzzy_search.sql")
-	db := newDB(b, ctx)
+	db := newDB(ctx, b)
 
 	query := `
 		SELECT Title

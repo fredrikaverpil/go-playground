@@ -14,7 +14,7 @@ func BenchmarkPhoneticSearch(b *testing.B) {
 	applySchema(ctx, b, "phonetic_search.sql")
 	client := newClient(ctx, b)
 	applySeed(ctx, b, client, "phonetic_search.sql")
-	db := newDB(b, ctx)
+	db := newDB(ctx, b)
 
 	query := `
 		SELECT FirstName, LastName, FirstNameSoundex
@@ -55,7 +55,7 @@ func BenchmarkPhoneticSearch(b *testing.B) {
 					b.Fatalf("scan columns: %v", err)
 				}
 			}
-			_ = rows.Close()
+			_ = rows.Close() //nolint:sqlclosecheck // defer would accumulate in bench loop
 			if err := rows.Err(); err != nil {
 				b.Fatalf("rows iteration: %v", err)
 			}

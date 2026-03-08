@@ -104,7 +104,7 @@ func newClient(ctx context.Context, tb testing.TB) *spanner.Client {
 }
 
 // newDB opens a database/sql connection to the Spanner emulator and registers cleanup.
-func newDB(tb testing.TB, _ context.Context) *sql.DB {
+func newDB(_ context.Context, tb testing.TB) *sql.DB {
 	tb.Helper()
 	host := os.Getenv("SPANNER_EMULATOR_HOST")
 	dsn := host + "/" + databaseURI + ";usePlainText=true"

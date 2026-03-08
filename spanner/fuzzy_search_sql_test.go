@@ -12,7 +12,7 @@ func TestFuzzySearchSQL(t *testing.T) {
 	applySchema(ctx, t, "fuzzy_search.sql")
 	client := newClient(ctx, t)
 	applySeed(ctx, t, client, "fuzzy_search.sql")
-	db := newDB(t, ctx)
+	db := newDB(ctx, t)
 
 	t.Run("misspelled query finds correct result", func(t *testing.T) {
 		rows, err := db.QueryContext(ctx, `

@@ -12,7 +12,7 @@ func TestFullTextSearchSQL(t *testing.T) {
 	applySchema(ctx, t, "fulltext_search.sql")
 	client := newClient(ctx, t)
 	applySeed(ctx, t, client, "fulltext_search.sql")
-	db := newDB(t, ctx)
+	db := newDB(ctx, t)
 
 	t.Run("single word search in title", func(t *testing.T) {
 		rows, err := db.QueryContext(ctx, `

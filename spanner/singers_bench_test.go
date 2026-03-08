@@ -15,7 +15,7 @@ func BenchmarkSingers(b *testing.B) {
 	applySchema(ctx, b, "singers.sql")
 	client := newClient(ctx, b)
 	applySeed(ctx, b, client, "singers.sql")
-	db := newDB(b, ctx)
+	db := newDB(ctx, b)
 
 	query := `
 		SELECT SingerId, FirstName, LastName, Metadata
@@ -69,7 +69,7 @@ func BenchmarkSingers(b *testing.B) {
 					_ = json.Unmarshal(jsonBytes, &metadata)
 				}
 			}
-			_ = rows.Close()
+			_ = rows.Close() //nolint:sqlclosecheck // defer would accumulate in bench loop
 			if err := rows.Err(); err != nil {
 				b.Fatalf("rows iteration: %v", err)
 			}

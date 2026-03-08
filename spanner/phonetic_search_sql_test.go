@@ -12,7 +12,7 @@ func TestPhoneticSearchSQL(t *testing.T) {
 	applySchema(ctx, t, "phonetic_search.sql")
 	client := newClient(ctx, t)
 	applySeed(ctx, t, client, "phonetic_search.sql")
-	db := newDB(t, ctx)
+	db := newDB(ctx, t)
 
 	t.Run("soundex codes for similar names", func(t *testing.T) {
 		rows, err := db.QueryContext(ctx, `

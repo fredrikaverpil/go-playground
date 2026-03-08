@@ -14,7 +14,7 @@ func BenchmarkFullTextSearch(b *testing.B) {
 	applySchema(ctx, b, "fulltext_search.sql")
 	client := newClient(ctx, b)
 	applySeed(ctx, b, client, "fulltext_search.sql")
-	db := newDB(b, ctx)
+	db := newDB(ctx, b)
 
 	query := `
 		SELECT SongId, Title
