@@ -35,7 +35,7 @@ func (s *SpyCountdownOperations) Sleep() {
 // Implements io.Writer interface - so it can be used in test.
 func (s *SpyCountdownOperations) Write(_ []byte) (n int, err error) {
 	s.Calls = append(s.Calls, write)
-	return
+	return n, err
 }
 
 // -- used for test 3

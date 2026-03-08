@@ -68,7 +68,7 @@ func TestServer(t *testing.T) {
 		store := &SpyStore{response: data, t: t}
 		svr := Server(store)
 
-		request := httptest.NewRequest(http.MethodGet, "/", nil)
+		request := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 		response := httptest.NewRecorder()
 
 		svr.ServeHTTP(response, request)
@@ -83,7 +83,7 @@ func TestServer(t *testing.T) {
 		store := &SpyStore{response: data, t: t}
 		svr := Server(store)
 
-		request := httptest.NewRequest(http.MethodGet, "/", nil)
+		request := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 
 		cancellingCtx, cancel := context.WithCancel(request.Context())
 		time.AfterFunc(5*time.Millisecond, cancel)
