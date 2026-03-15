@@ -30,8 +30,6 @@ var Config = &pk.Config{
 	// Plan configuration: shims, directories, and CI settings.
 	// Use ./pok -g to run git diff check after execution.
 	Plan: &pk.PlanConfig{
-		Shims: &pk.ShimConfig{
-			Posix: true,
-		},
+		Shims: pk.DefaultShimConfig(),
 	},
 }
