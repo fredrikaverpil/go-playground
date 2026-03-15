@@ -43,7 +43,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g go-fix
+        run: ./pok -v -g -c go-fix
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
@@ -82,7 +82,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g go-format
+        run: ./pok -v -g -c go-format
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
@@ -121,7 +121,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g go-lint
+        run: ./pok -v -g -c go-lint
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
@@ -160,7 +160,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g go-test
+        run: ./pok -v -g -c go-test
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
@@ -199,7 +199,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g go-vulncheck
+        run: ./pok -v -g -c go-vulncheck
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
@@ -238,7 +238,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g md-format
+        run: ./pok -v -g -c md-format
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
@@ -277,7 +277,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: ./pok -v -g github-workflows
+        run: ./pok -v -g -c github-workflows
       - name: Save cache
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/cache/save@v5
