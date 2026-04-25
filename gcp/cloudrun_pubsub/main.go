@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	//nolint:staticcheck // SA1019: pubsub v1 intentionally used until v2 migration
 	"cloud.google.com/go/pubsub"
 )
 
