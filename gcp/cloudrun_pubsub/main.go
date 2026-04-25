@@ -8,8 +8,10 @@ import (
 	"os"
 	"time"
 
-	//nolint:staticcheck // SA1019: pubsub v1 intentionally used until v2 migration
-	"cloud.google.com/go/pubsub"
+	"cloud.google.com/go/pubsub/v2"
+	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -33,10 +35,10 @@ func main() {
 		return
 	}
 
-	// Create Pub/Sub client
 	pubsubClient, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
 		logger.Error("Failed to create Pub/Sub client", "error", err)
+		return
 	}
 	defer func() {
 		if err := pubsubClient.Close(); err != nil {
@@ -44,13 +46,11 @@ func main() {
 		}
 	}()
 
-	// Ensure the topic exists
-	topic := ensureTopicExists(ctx, pubsubClient, topicID, logger)
+	publisher := ensureTopicExists(ctx, pubsubClient, projectID, topicID, logger)
+	defer publisher.Stop()
 
-	// Start the subscriber in a goroutine
-	go subscribeAndLog(ctx, pubsubClient, topicID, logger)
+	go subscribeAndLog(ctx, pubsubClient, projectID, topicID, logger)
 
-	// Set up web server
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
@@ -59,7 +59,7 @@ func main() {
 				return
 			}
 			message := r.FormValue("message")
-			publishMessage(ctx, topic, message, logger)
+			publishMessage(ctx, publisher, message, logger)
 			if _, err := fmt.Fprintln(w, template); err != nil {
 				logger.Error("Failed to write response", "error", err)
 			}
@@ -84,23 +84,26 @@ func NewLogger() *slog.Logger {
 	return logger
 }
 
-func ensureTopicExists(ctx context.Context, client *pubsub.Client, topicID string, log *slog.Logger) *pubsub.Topic {
-	topic := client.Topic(topicID)
-	exists, err := topic.Exists(ctx)
+func ensureTopicExists(
+	ctx context.Context,
+	client *pubsub.Client,
+	projectID string,
+	topicID string,
+	log *slog.Logger,
+) *pubsub.Publisher {
+	topicName := fmt.Sprintf("projects/%s/topics/%s", projectID, topicID)
+	_, err := client.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName})
+	if status.Code(err) == codes.NotFound {
+		_, err = client.TopicAdminClient.CreateTopic(ctx, &pubsubpb.Topic{Name: topicName})
+	}
 	if err != nil {
-		log.Error("Error checking if topic exists", "error", err)
+		log.Error("Failed to ensure topic exists", "error", err)
 	}
-	if !exists {
-		_, err := client.CreateTopic(ctx, topicID)
-		if err != nil {
-			log.Error("Failed to create the topic", "error", err)
-		}
-	}
-	return topic
+	return client.Publisher(topicName)
 }
 
-func publishMessage(ctx context.Context, topic *pubsub.Topic, message string, log *slog.Logger) {
-	result := topic.Publish(ctx, &pubsub.Message{Data: []byte(message)})
+func publishMessage(ctx context.Context, publisher *pubsub.Publisher, message string, log *slog.Logger) {
+	result := publisher.Publish(ctx, &pubsub.Message{Data: []byte(message)})
 	_, err := result.Get(ctx)
 	if err != nil {
 		log.Error("Could not publish message", "error", err)
@@ -108,28 +111,31 @@ func publishMessage(ctx context.Context, topic *pubsub.Topic, message string, lo
 	}
 }
 
-func subscribeAndLog(ctx context.Context, client *pubsub.Client, topicID string, log *slog.Logger) {
+func subscribeAndLog(ctx context.Context, client *pubsub.Client, projectID, topicID string, log *slog.Logger) {
 	subID := topicID + "-sub"
-	sub := client.Subscription(subID)
+	subName := fmt.Sprintf("projects/%s/subscriptions/%s", projectID, subID)
+	topicName := fmt.Sprintf("projects/%s/topics/%s", projectID, topicID)
 
-	exists, err := sub.Exists(ctx)
-	if err != nil {
-		log.Error("Error checking if subscription exists", "error", err)
-		return
+	_, err := client.SubscriptionAdminClient.GetSubscription(
+		ctx,
+		&pubsubpb.GetSubscriptionRequest{Subscription: subName},
+	)
+	if status.Code(err) == codes.NotFound {
+		_, err = client.SubscriptionAdminClient.CreateSubscription(ctx, &pubsubpb.Subscription{
+			Name:  subName,
+			Topic: topicName,
+		})
 	}
-
-	if !exists {
-		_, err := client.CreateSubscription(ctx, subID, pubsub.SubscriptionConfig{Topic: client.Topic(topicID)})
-		if err != nil {
-			log.Error("Failed to create the subscription", "error", err)
-			return
-		}
+	if err != nil {
+		log.Error("Failed to ensure subscription exists", "error", err)
+		return
 	}
 
 	cctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	err = sub.Receive(cctx, func(_ context.Context, m *pubsub.Message) {
+	subscriber := client.Subscriber(subName)
+	err = subscriber.Receive(cctx, func(_ context.Context, m *pubsub.Message) {
 		log.Info("Received message", "data", string(m.Data))
 		m.Ack() // Acknowledge that we've consumed the message.
 	})
