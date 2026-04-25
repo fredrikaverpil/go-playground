@@ -1,13 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -38,10 +41,13 @@ func testMain(m *testing.M) int {
 		return 1
 	}
 
-	go startContainer(logFile)
+	containerErr := make(chan error, 1)
+	go func() {
+		containerErr <- startContainer(logFile)
+	}()
 	defer stopContainer()
 
-	if err := waitForPorts([]string{"9010", "9020"}, 30*time.Second); err != nil {
+	if err := waitForPorts([]string{"9010", "9020"}, 30*time.Second, containerErr); err != nil {
 		fmt.Fprintf(os.Stderr, "wait for emulator: %v\n", err)
 		return 1
 	}
@@ -55,7 +61,7 @@ func testMain(m *testing.M) int {
 	return m.Run()
 }
 
-func startContainer(logFile *os.File) {
+func startContainer(logFile *os.File) error {
 	// Remove any leftover container from a previous run.
 	_ = exec.CommandContext(context.Background(), "docker", "rm", "-f", "spanner-emulator").Run()
 	cmd := exec.CommandContext(context.Background(), "docker",
@@ -65,17 +71,26 @@ func startContainer(logFile *os.File) {
 		"--name", "spanner-emulator",
 		"gcr.io/cloud-spanner-emulator/emulator",
 	)
-	cmd.Stdout = logFile
-	cmd.Stderr = logFile
+	var output bytes.Buffer
+	cmd.Stdout = io.MultiWriter(logFile, &output)
+	cmd.Stderr = io.MultiWriter(logFile, &output)
 	fmt.Println("Starting Spanner emulator...")
 	if err := cmd.Run(); err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) && exitErr.ExitCode() == 2 {
 			// Container was already stopped or removed; safe to ignore.
-			return
+			return nil
 		}
-		fmt.Fprintf(os.Stderr, "docker run: %v\n", err)
+		return fmt.Errorf("docker run: %w%s", err, dockerRunHint(output.String()))
 	}
+	return nil
+}
+
+func dockerRunHint(output string) string {
+	if strings.Contains(output, "gcloud.auth.docker-helper") || strings.Contains(output, "Reauthentication failed") {
+		return ": warning: Podman/Docker could not authenticate to gcr.io via gcloud; run `gcloud auth login` and retry"
+	}
+	return ""
 }
 
 func stopContainer() {
@@ -86,12 +101,16 @@ func stopContainer() {
 }
 
 // waitForPorts polls until all ports are reachable or the timeout expires.
-func waitForPorts(ports []string, timeout time.Duration) error {
+func waitForPorts(ports []string, timeout time.Duration, containerErr <-chan error) error {
 	deadline := time.After(timeout)
 	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
 	for {
 		select {
+		case err := <-containerErr:
+			if err != nil {
+				return fmt.Errorf("start container: %w", err)
+			}
 		case <-deadline:
 			return fmt.Errorf("ports %v not reachable after %v", ports, timeout)
 		case <-ticker.C:
