@@ -73,21 +73,42 @@ preference):
    - Example: `go doc encoding/json.Marshal`
    - Especially useful for verifying method signatures and available functions
 
-2. **go.dev via WebFetch** (official authoritative source):
-   - Fetch from `https://pkg.go.dev/<package>` for standard library
-     documentation
+2. **pkg.go.dev API via `curl`** (structured metadata, no install or auth —
+   best for packages NOT installed locally):
+   - `https://pkg.go.dev/v1beta/symbols/<path>` — exact signature of every
+     exported symbol (name, kind, signature). Best for verifying a function or
+     method exists and confirming its signature.
+   - `https://pkg.go.dev/v1beta/package/<path>` — package existence, name,
+     synopsis, and resolved version.
+   - `https://pkg.go.dev/v1beta/search?q=<query>` — find and compare
+     third-party packages (ranked, with synopsis) before recommending one.
+   - `https://pkg.go.dev/v1beta/versions/<path>` — list versions with
+     `deprecated`/`retracted` flags and commit times.
+   - Pin a version with `?version=v1.2.3` (or a branch, e.g. `?version=master`).
+   - Returns JSON — parse it directly. The API is in beta (`/v1beta`) and its
+     shape may change.
+   - Caveat: it returns synopses and signatures only — NOT full doc comments,
+     runnable examples, or "added in go1.X" annotations (use `go doc` or the
+     HTML page for those). Standard-library results reflect the latest Go
+     release, not the user's installed version.
+
+3. **go.dev via WebFetch** (official source for prose, examples, and version
+   history the API does not expose):
+   - Fetch `https://pkg.go.dev/<package>` for full documentation, runnable
+     examples, and "added in go1.X" symbol annotations
    - Check `https://go.dev/doc/` for official guides and specifications
+   - Check `https://go.dev/doc/devel/release` (release notes) for when a
+     feature was introduced
    - Reference `https://go.dev/blog/` for best practices and new feature
      announcements
-   - Use for the latest information and comprehensive explanations
 
-3. **Context7 MCP tool** (for broader Go ecosystem):
+4. **Context7 MCP tool** (for broader Go ecosystem):
    - Use `resolve-library-id` followed by `get-library-docs` for third-party
      packages
    - Good for popular Go libraries and frameworks outside the standard library
    - Provides community best practices
 
-4. **Google ecosystem documentation via WebFetch**:
+5. **Google ecosystem documentation via WebFetch**:
    - **grpc.io** - Official gRPC documentation and guides
      - `https://grpc.io/docs/languages/go/` for Go-specific gRPC docs
      - `https://grpc.io/docs/guides/` for conceptual guides
@@ -102,7 +123,7 @@ preference):
    - **googleapis GitHub**
      - Reference for proto definitions and examples
 
-5. **CLI tools for verification**:
+6. **CLI tools for verification**:
    - `buf --help` and `buf <command> --help` for buf usage
    - `protoc --help` for protobuf compiler options
    - `grpcurl` for testing gRPC endpoints
@@ -111,12 +132,15 @@ preference):
 
 - For standard library questions: Start with `go doc`, cross-reference with
   go.dev
+- For signature/existence checks on packages not installed locally: use the
+  pkg.go.dev API (`symbols`/`package` endpoints)
 - For version-specific features: Check go.dev release notes and blog
 - For protobuf/gRPC questions: Check grpc.io and buf.build docs, use `buf` CLI
 - For Google Cloud services: Check cloud.google.com/go/docs and pkg.go.dev
-- For third-party packages: Use context7
-- Always cite your source (e.g., "According to `go doc`, ...", "From
-  grpc.io/docs/...", "Per buf.build docs...", etc.)
+- For third-party packages: Use the pkg.go.dev API (`search` to find, `symbols`
+  to verify), then context7 for prose and examples
+- Always cite your source (e.g., "According to `go doc`, ...", "Per the
+  pkg.go.dev API, ...", "From grpc.io/docs/...", etc.)
 
 #### Example Version Callouts
 
@@ -349,6 +373,8 @@ specialized approach:
 - Effective Go (golang.org/doc/effective_go)
 - Go Blog (blog.golang.org)
 - Language Specification (golang.org/ref/spec)
+- pkg.go.dev API (pkg.go.dev/v1beta — beta): structured package, symbol,
+  search, and version metadata
 
 ### Google Ecosystem Documentation
 
