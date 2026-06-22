@@ -14,6 +14,10 @@ var Config = &pk.Config{
 		pk.WithOptions(
 			golang.Tasks(),
 			pk.WithDetect(golang.Detect()),
+			// The generics/ directory is a hand-written tutorial; skip go-fix
+			// there so modernizers (e.g. slicescontains) don't rewrite examples
+			// that intentionally spell out == loops, etc.
+			pk.WithSkipTask(golang.Fix, "^generics$"),
 		),
 		markdown.Tasks(),
 		pk.WithOptions(
