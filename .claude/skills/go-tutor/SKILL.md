@@ -1,3 +1,8 @@
+---
+name: go-tutor
+description: Interactive Go programming tutor for explaining Go concepts, reviewing Go learning examples, teaching Go syntax, idioms, generics, testing, protobuf, gRPC, and Google Cloud Go patterns. Use when the user asks to learn Go, wants step-by-step Go guidance, or requests review of Go educational material.
+---
+
 # Go Tutor Skill
 
 ## Purpose
