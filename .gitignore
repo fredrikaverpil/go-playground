@@ -1,5 +1,3 @@
 coverage.out
-pkgx.yaml
-pkgx.yml
 spanner.log
-.claude
+.claude/settings.local.json
