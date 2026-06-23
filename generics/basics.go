@@ -113,6 +113,8 @@ func maxOf[T cmp.Ordered](a, b T) T {
 //	var n Number             // constraint-only interface; cannot use as a value type
 //	_ = sum([]Celsius{1, 2}) // Celsius is not exactly float64
 //	_ = sum([]uint{1, 2})    // uint is not listed in Number
+
+// Number is a custom union constraint: T may be int, int64 or float64.
 type Number interface {
 	int | int64 | float64
 }
@@ -141,6 +143,8 @@ func sum[T Number](s []T) T {
 // This is exactly why cmp.Ordered is written with a ~ on every line: it wants to
 // accept your defined types (type UserID int, type Money int64, ...), not just
 // the predeclared ones.
+
+// Celsius is a temperature in degrees Celsius; its underlying type is float64.
 type Celsius float64 // NOTE: not a type alias!
 
 type RealNumber interface {
@@ -180,6 +184,8 @@ func describe[T fmt.Stringer](items []T) []string {
 // Celsius (from step 5) gains a String method, so it now also satisfies
 // fmt.Stringer -- the same defined type can sit in a type-set constraint
 // (RealNumber) AND a method-set constraint.
+
+// String renders the temperature, e.g. "20°C".
 func (c Celsius) String() string {
 	return fmt.Sprintf("%g°C", float64(c))
 }
@@ -190,6 +196,9 @@ func (c Celsius) String() string {
 // a type only when it is based on float64 *and* has String(): Celsius qualifies;
 // a plain float64 does not (no String method); a `type Name string` with a
 // String method does not (wrong underlying type).
+
+// FloatStringer is a constraint requiring BOTH a ~float64 underlying type and a
+// String method; the types it permits are the intersection of the two.
 type FloatStringer interface {
 	~float64
 	fmt.Stringer
@@ -226,6 +235,9 @@ func scale[T FloatStringer](x T) string {
 //
 // Underneath, a Slice[int] is exactly a []int, so all slice built-ins (len,
 // append, range, indexing) work on it unchanged.
+
+// Slice is a generic slice type: a Slice[E] is a []E, instantiated explicitly
+// (e.g. Slice[int]).
 type Slice[E any] []E
 
 // Step 8: Methods on a generic type
@@ -256,6 +268,8 @@ type Slice[E any] []E
 //     interface (e.g. a generic Read[E any] would not implement io.Reader).
 //     The mental model: "a generic method is a generic function with a receiver".
 //   - Calls work like generic functions: s.Map[string](f), or inferred s.Map(f).
+
+// Add returns a new Slice[E] with item appended, so calls can chain.
 func (s Slice[E]) Add(item E) Slice[E] {
 	return append(s, item)
 }
@@ -273,6 +287,8 @@ func (s Slice[E]) Add(item E) Slice[E] {
 // composite literal: Pair[int, string]{...}. But a constructor FUNCTION can
 // infer the type arguments from its values -- the same inference we saw for
 // functions earlier.
+
+// Pair holds two values of independent types T and U.
 type Pair[T, U any] struct {
 	First  T
 	Second U
@@ -302,6 +318,9 @@ func MakePair[T, U any](first T, second U) Pair[T, U] {
 // S is inferred from the argument, so you write Filter(xs, keep), never
 // Filter[Slice[int], int](xs, keep). This is how the standard library's slices
 // and maps packages are written.
+
+// Filter returns a new S holding only the elements for which keep returns true,
+// preserving the named slice type S.
 func Filter[S ~[]E, E any](s S, keep func(E) bool) S {
 	// make (not var out S) preallocates and guarantees a non-nil result: Filter
 	// returns an empty slice, never nil, even when nothing matches.
@@ -318,9 +337,8 @@ func Filter[S ~[]E, E any](s S, keep func(E) bool) S {
 //
 // By now you've seen a few names: T (steps 1-6, 9), E (steps 7-8, 10), U (step
 // 9), and S (step 10). Type parameter names can be ANY identifier -- whole words
-// included -- but
-// by convention they are short and UPPERCASE, with length tracking scope (the
-// same idea behind `i` for a loop index). The common letters:
+// included -- but by convention they are short and UPPERCASE, with length
+// tracking scope (the same idea behind `i` for a loop index). The common letters:
 //
 //	T = a general Type    E = Element        S = Slice (or type Set)
 //	K = map Key           V = map Value      R = Result
