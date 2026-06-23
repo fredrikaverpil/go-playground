@@ -317,7 +317,7 @@ func TestPair(t *testing.T) {
 // argument, so there are no explicit type arguments at the call site.
 func TestFilter(t *testing.T) {
 	t.Run("keeps the named type", func(t *testing.T) {
-		var got Slice[int] = Filter(Slice[int]{1, 2, 3, 4}, func(n int) bool { return n%2 == 0 })
+		got := Filter(Slice[int]{1, 2, 3, 4}, func(n int) bool { return n%2 == 0 })
 		assert.DeepEqual(t, got, Slice[int]{2, 4})
 	})
 
