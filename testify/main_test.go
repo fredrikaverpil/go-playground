@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert" //nolint:gomodguard // testify exercise
-	"github.com/stretchr/testify/suite"  //nolint:gomodguard // testify exercise
+	"github.com/stretchr/testify/assert" //nolint:gomodguard_v2 // testify exercise
+	"github.com/stretchr/testify/suite"  //nolint:gomodguard_v2 // testify exercise
 )
 
 // Define the suite, and absorb the built-in basic suite
