@@ -93,7 +93,5 @@ undo(c) // restores previous value
 - [Dave Cheney: Functional options for friendly APIs][cheney]
 - [Rob Pike: Self-referential functions and the design of options][pike]
 
-[cheney]:
-  https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
-[pike]:
-  https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html
+[cheney]: https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
+[pike]: https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html
