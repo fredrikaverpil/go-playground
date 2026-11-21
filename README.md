@@ -3,19 +3,19 @@
 This is my personal playground for experimenting and learning new things in
 [Go](https://go.dev).
 
-## Pocket
+## Development
 
-Run tests, linting etc with [Pocket](https://github.com/fredrikaverpil/pocket):
+Run tests, linting etc with [mise](https://mise.jdx.dev):
 
 ```sh
-./pok
+mise tasks  # list tasks
+mise run    # run all checks
 ```
 
-See `./pok -h` or `./pok plan` for more details.
-
-Run tests, linting etc for a specific experiment:
+Go tasks run in every module at or below the current directory, so run them from
+a folder to target a specific experiment:
 
 ```sh
 cd <folder>
-./pok
+mise run go:test
 ```

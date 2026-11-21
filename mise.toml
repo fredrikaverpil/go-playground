@@ -1,0 +1,51 @@
+[settings]
+lockfile = true
+minimum_release_age = "3d"
+
+[tools]
+go = "1.27.4"
+golangci-lint = "2.14.0"
+rumdl = "0.2.52"
+"go:golang.org/x/vuln/cmd/govulncheck" = "1.8.0"
+
+# Go
+
+[tasks."go:fix"]
+description = "Update Go code for newer Go versions"
+# generics/ is a hand-written tutorial; modernizers must not rewrite its examples.
+env = { SKIP_MODULES = "generics" }
+run = "scripts/each-module.sh go fix ./..."
+
+[tasks."go:format"]
+description = "Format Go code"
+run = "scripts/each-module.sh golangci-lint fmt ./..."
+
+[tasks."go:lint"]
+description = "Lint Go code, with fixes"
+run = "scripts/each-module.sh golangci-lint run --fix ./..."
+
+[tasks."go:test"]
+description = "Run tests"
+run = ["go version", "scripts/each-module.sh go test -race ./..."]
+env = { CGO_ENABLED = "1" }
+
+[tasks."go:vulncheck"]
+description = "Check for known vulnerabilities"
+run = "scripts/each-module.sh govulncheck ./..."
+
+# Markdown
+
+[tasks."md:lint"]
+description = "Lint Markdown files, with fixes"
+run = "rumdl check --fix ."
+
+# Tasks that write files run one at a time; read-only checks in parallel.
+[tasks.default]
+description = "Run all checks"
+run = [
+  { task = "go:fix" },
+  { task = "go:format" },
+  { task = "md:lint" },
+  { task = "go:lint" },
+  { tasks = ["go:test", "go:vulncheck"] },
+]

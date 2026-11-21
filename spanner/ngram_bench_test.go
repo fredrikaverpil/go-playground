@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -29,8 +30,7 @@ func BenchmarkNgram(b *testing.B) {
 
 func BenchmarkNgramReversed(b *testing.B) {
 	client := setupNgramBench(b)
-	for i := len(ngramConfigs) - 1; i >= 0; i-- {
-		cfg := ngramConfigs[i]
+	for _, cfg := range slices.Backward(ngramConfigs) {
 		b.Run(cfg.name, ngramBenchFunc(client, cfg.table))
 	}
 }
