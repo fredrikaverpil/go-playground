@@ -1,4 +1,4 @@
-github.com/approvals/go-approval-tests v0.0.0-20241211183344-15d1ffb738a9 h1:zfQwAI2fXGieaEZTtHdxha2Uq2MywDSUe8AXzdOKBtQ=
-github.com/approvals/go-approval-tests v0.0.0-20241211183344-15d1ffb738a9/go.mod h1:PJOqSY8IofNv3heAD6k8E7EfFS6okiSS9bSAasaAUME=
+github.com/approvals/go-approval-tests v1.15.0 h1:slg44CE7+fNGV0lVey49ysJrflzfO1ZDTjNlt1lGYUw=
+github.com/approvals/go-approval-tests v1.15.0/go.mod h1:3HKg6haD0Wg6p1SiA8/xHWg/xu4qnsB73ocJoo6zNy8=
 github.com/gomarkdown/markdown v0.0.0-20260411013819-759bbc3e3207 h1:p7t34F7K4OCRQblcDhNJnP46Uaarz3z2cLcvOZYxWn8=
 github.com/gomarkdown/markdown v0.0.0-20260411013819-759bbc3e3207/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
